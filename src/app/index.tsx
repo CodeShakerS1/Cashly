@@ -25,6 +25,6 @@ const styles = StyleSheet.create({
   },
   titulo: {
     fontSize: 22,
-    marginBottom: 20,
+    marginBottom: 20
   },
 });
