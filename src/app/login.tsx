@@ -1,72 +1,75 @@
 import React from 'react';
-import {View, Text, StyleSheet, Image,TextInput, Dimensions, TouchableOpacity} from 'react-native';
+import { View, Text, StyleSheet, Image, TextInput, Dimensions, TouchableOpacity } from 'react-native';
 import Logo from '../assets/images/logo.png';
 import { themas } from '../theme/themes';
-import {MaterialIcons} from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
+import { Link } from "expo-router";
 
-
-
-
-export default function LoginScreen(){
-    return(
+export default function LoginScreen() {
+    return (
         <View style={styles.container}>
 
             <View style={styles.boxTop}>
                 <Image
-                source={Logo} 
-                style={styles.logo}
-                resizeMode='contain'
+                    source={Logo}
+                    style={styles.logo}
+                    resizeMode='contain'
                 />
             </View>
 
             <View style={styles.boxMid}>
                 <Text
-                style= {styles.text}
+                    style={styles.text}
                 >Bem vindo de volta!</Text>
 
-                <View style = {styles.boxInput}>
-                    <MaterialIcons 
-                    name='email'
-                    size={20}
-                    color={themas.colors.secundary}/>
-                
+                <View style={styles.boxInput}>
+                    <MaterialIcons
+                        name='email'
+                        size={20}
+                        color={themas.colors.secundary} />
+
                     <TextInput
-                        style= {styles.input}
+                        style={styles.input}
                         placeholder='Email'
                     />
 
                 </View>
-                 <View style = {styles.boxInput}>
-                    <MaterialIcons 
-                    name='lock'
-                    size={20}
-                    color={themas.colors.secundary}/>
-                
+                <View style={styles.boxInput}>
+                    <MaterialIcons
+                        name='lock'
+                        size={20}
+                        color={themas.colors.secundary} />
+
                     <TextInput
-                        style= {styles.input}
+                        style={styles.input}
                         placeholder='Senha'
-                        secureTextEntry = {true}
+                        secureTextEntry={true}
                     />
                 </View>
-                    <TouchableOpacity style={styles.boxForgot}>
-                        <Text style={styles.textForgot}>Esqueceu a senha?</Text>
-                    </TouchableOpacity>
+                <TouchableOpacity style={styles.boxForgot}>
+                    <Text style={styles.textForgot}>Esqueceu a senha?</Text>
+                </TouchableOpacity>
             </View>
 
             <View style={styles.boxBottom}>
-                <TouchableOpacity
-                style={styles.button}> 
-                <Text style= {styles.textButton}>Entrar</Text>
+                <TouchableOpacity style={styles.button}>
+                    <Text style={styles.textButton}>Entrar</Text>
                 </TouchableOpacity>
-                <TouchableOpacity>
-                                <Text style={styles.textBottom}>Não tem conta? <Text style={{color: themas.colors.primary}}>Cadastre-se</Text></Text>
-                </TouchableOpacity>
+
+                <Link href="/register" asChild>
+                    <TouchableOpacity>
+                        <Text style={styles.textBottom}>
+                            Não tem conta?
+                            <Text style={{ color: themas.colors.primary }}> Cadastre-se</Text>
+                        </Text>
+                    </TouchableOpacity>
+                </Link>
             </View>
         </View>
     )
 }
 
-const styles= StyleSheet.create({
+const styles = StyleSheet.create({
     container: {
         flex: 1,
         width: '100%',
@@ -76,26 +79,26 @@ const styles= StyleSheet.create({
         justifyContent: 'center'
     },
     boxTop: {
-        height: Dimensions.get('window').height/2.5,
+        height: Dimensions.get('window').height / 2.5,
         width: '100%',
         alignItems: 'center',
         justifyContent: 'center',
         flexDirection: 'column'
     },
     boxMid: {
-        height: Dimensions.get('window').height/3,
+        height: Dimensions.get('window').height / 3,
         width: '100%',
         alignItems: 'center',
         paddingHorizontal: 37
     },
     boxBottom: {
-        height: Dimensions.get('window').height/4,
+        height: Dimensions.get('window').height / 4,
         width: '100%',
         alignItems: 'center',
         justifyContent: 'center'
     },
     button: {
-        width:'80%',
+        width: '80%',
         height: 50,
         borderRadius: 18,
         backgroundColor: themas.colors.primary,
@@ -157,7 +160,7 @@ const styles= StyleSheet.create({
         marginTop: 10
     },
     textForgot: {
-        color: themas.colors.primary, 
+        color: themas.colors.primary,
         fontSize: 14,
         fontWeight: '500',
         paddingRight: 10
