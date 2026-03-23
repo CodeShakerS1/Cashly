@@ -7,7 +7,7 @@ export default function Index() {
   return (
     <View>
       <Text>Tela inicial</Text>
-      <TouchableOpacity onPress={() => router.push("/notification")}>
+      <TouchableOpacity onPress={() => router.push("/tabs/notification")}>
         <MaterialIcons name="notifications" size={24} color="black" />
       </TouchableOpacity>
     </View>
