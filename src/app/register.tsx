@@ -1,6 +1,6 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { Link } from "expo-router";
-import React from "react";
+import { Link, useRouter } from "expo-router";
+import React, { useState } from "react";
 import {
   Image,
   StyleSheet,
@@ -13,6 +13,38 @@ import Logo from "../assets/images/logo.png";
 import { themas } from "../theme/themes";
 
 export default function RegisterScreen() {
+  const router = useRouter();
+
+  const [nome, setNome] = useState("");
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const [confirmarSenha, setConfirmarSenha] = useState("");
+
+  const handleRegister = () => {
+    if (!nome || !email || !senha || !confirmarSenha) {
+      alert("Preencha todos os campos");
+      return;
+    }
+
+    if (!email.includes("@")) {
+      alert("Email inválido");
+      return;
+    }
+
+    if (senha.length < 6) {
+      alert("Senha muito curta");
+      return;
+    }
+
+    if (senha !== confirmarSenha) {
+      alert("As senhas não coincidem");
+      return;
+    }
+
+    alert("Conta criada com sucesso!");
+    router.replace("/");
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.boxTop}>
@@ -23,56 +55,50 @@ export default function RegisterScreen() {
         <Text style={styles.text}>Crie sua conta</Text>
 
         <View style={styles.boxInput}>
-          <MaterialIcons
-            name="person"
-            size={20}
-            color={themas.colors.secundary}
-          />
+          <MaterialIcons name="person" size={20} color={themas.colors.secundary} />
           <TextInput
             style={styles.input}
             placeholder="Nome completo"
             placeholderTextColor="#999"
+            value={nome}
+            onChangeText={setNome}
           />
         </View>
 
         <View style={styles.boxInput}>
-          <MaterialIcons
-            name="email"
-            size={20}
-            color={themas.colors.secundary}
-          />
+          <MaterialIcons name="email" size={20} color={themas.colors.secundary} />
           <TextInput
             style={styles.input}
             placeholder="E-mail"
             placeholderTextColor="#999"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
           />
         </View>
 
         <View style={styles.boxInput}>
-          <MaterialIcons
-            name="lock"
-            size={20}
-            color={themas.colors.secundary}
-          />
+          <MaterialIcons name="lock" size={20} color={themas.colors.secundary} />
           <TextInput
             style={styles.input}
             placeholder="Senha"
             secureTextEntry
             placeholderTextColor="#999"
+            value={senha}
+            onChangeText={setSenha}
           />
         </View>
 
         <View style={styles.boxInput}>
-          <MaterialIcons
-            name="lock-outline"
-            size={20}
-            color={themas.colors.secundary}
-          />
+          <MaterialIcons name="lock-outline" size={20} color={themas.colors.secundary} />
           <TextInput
             style={styles.input}
             placeholder="Confirmar senha"
             secureTextEntry
             placeholderTextColor="#999"
+            value={confirmarSenha}
+            onChangeText={setConfirmarSenha}
           />
         </View>
 
@@ -80,17 +106,16 @@ export default function RegisterScreen() {
           Ao continuar você concorda com os nossos
           <Text style={{ color: themas.colors.primary }}> Termos de Uso </Text>e
           <Text style={{ color: themas.colors.primary }}>
-            {" "}
-            Política de Privacidade
-          </Text>
-          .
+            {" "}Política de Privacidade
+          </Text>.
         </Text>
       </View>
 
       <View style={styles.boxBottom}>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={handleRegister}>
           <Text style={styles.textButton}>Cadastrar</Text>
         </TouchableOpacity>
+
         <Link href="/login" push asChild>
           <TouchableOpacity>
             <Text style={styles.textBottom}>
