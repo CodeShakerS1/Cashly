@@ -11,27 +11,38 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: false,
         tabBarShowLabel: false,
+        tabBarStyle: {
+          backgroundColor: "#0F0F0F",
+        },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
           tabBarIcon: () => (
-            <MaterialIcons name="home" size={24} color={themas.colors.bgScreen} />
+            <MaterialIcons
+              name="home"
+              size={24}
+              color={themas.colors.primary}
+            />
           ),
         }}
       />
-  <Tabs.Screen
-  name="notification"
-  options={{
-    href: null,
-  }}
-/>
+      <Tabs.Screen
+        name="notification"
+        options={{
+          href: null,
+        }}
+      />
       <Tabs.Screen
         name="category"
         options={{
           tabBarIcon: () => (
-            <MaterialIcons name="sort" size={24} color={themas.colors.bgScreen} />
+            <MaterialIcons
+              name="list"
+              size={24}
+              color={themas.colors.bgScreen}
+            />
           ),
         }}
       />
@@ -52,21 +63,33 @@ export default function TabLayout() {
           ),
         }}
       />
-
       <Tabs.Screen
-        name="details"
+        name="relatory"
         options={{
           tabBarIcon: () => (
-            <MaterialIcons name="bar-chart" size={24} color={themas.colors.bgScreen} />
+            <MaterialIcons
+              name="bar-chart"
+              size={24}
+              color={themas.colors.bgScreen}
+            />
           ),
         }}
       />
-
+      <Tabs.Screen
+        name="details"
+        options={{
+          href: null,
+        }}
+      />
       <Tabs.Screen
         name="settings"
         options={{
           tabBarIcon: () => (
-            <MaterialIcons name="settings" size={24} color={themas.colors.bgScreen} />
+            <MaterialIcons
+              name="settings"
+              size={24}
+              color={themas.colors.bgScreen}
+            />
           ),
         }}
       />

@@ -42,7 +42,7 @@ export default function RegisterScreen() {
     }
 
     alert("Conta criada com sucesso!");
-    router.replace("/");
+    router.replace("/(tabs)");
   };
 
   return (
@@ -55,7 +55,11 @@ export default function RegisterScreen() {
         <Text style={styles.text}>Crie sua conta</Text>
 
         <View style={styles.boxInput}>
-          <MaterialIcons name="person" size={20} color={themas.colors.secundary} />
+          <MaterialIcons
+            name="person"
+            size={20}
+            color={themas.colors.secundary}
+          />
           <TextInput
             style={styles.input}
             placeholder="Nome completo"
@@ -66,7 +70,11 @@ export default function RegisterScreen() {
         </View>
 
         <View style={styles.boxInput}>
-          <MaterialIcons name="email" size={20} color={themas.colors.secundary} />
+          <MaterialIcons
+            name="email"
+            size={20}
+            color={themas.colors.secundary}
+          />
           <TextInput
             style={styles.input}
             placeholder="E-mail"
@@ -79,7 +87,11 @@ export default function RegisterScreen() {
         </View>
 
         <View style={styles.boxInput}>
-          <MaterialIcons name="lock" size={20} color={themas.colors.secundary} />
+          <MaterialIcons
+            name="lock"
+            size={20}
+            color={themas.colors.secundary}
+          />
           <TextInput
             style={styles.input}
             placeholder="Senha"
@@ -91,7 +103,11 @@ export default function RegisterScreen() {
         </View>
 
         <View style={styles.boxInput}>
-          <MaterialIcons name="lock-outline" size={20} color={themas.colors.secundary} />
+          <MaterialIcons
+            name="lock-outline"
+            size={20}
+            color={themas.colors.secundary}
+          />
           <TextInput
             style={styles.input}
             placeholder="Confirmar senha"
@@ -106,8 +122,10 @@ export default function RegisterScreen() {
           Ao continuar você concorda com os nossos
           <Text style={{ color: themas.colors.primary }}> Termos de Uso </Text>e
           <Text style={{ color: themas.colors.primary }}>
-            {" "}Política de Privacidade
-          </Text>.
+            {" "}
+            Política de Privacidade
+          </Text>
+          .
         </Text>
       </View>
 
