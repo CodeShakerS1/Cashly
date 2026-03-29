@@ -1,6 +1,6 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { Link } from "expo-router";
-import React from "react";
+import { Link, useRouter } from "expo-router";
+import React, { useState } from "react";
 import {
   Dimensions,
   Image,
@@ -14,6 +14,22 @@ import Logo from "../assets/images/logo.png";
 import { themas } from "../theme/themes";
 
 export default function LoginScreen() {
+  const router = useRouter();
+
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const [erro, setErro] = useState("");
+
+  const handleLogin = () => {
+    if (!email || !senha) {
+      setErro("Preencha todos os campos");
+      return;
+    }
+
+    setErro("");
+    router.replace("/tabs");
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.boxTop}>
@@ -30,8 +46,14 @@ export default function LoginScreen() {
             color={themas.colors.secundary}
           />
 
-          <TextInput style={styles.input} placeholder="Email" />
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+          />
         </View>
+
         <View style={styles.boxInput}>
           <MaterialIcons
             name="lock"
@@ -43,23 +65,30 @@ export default function LoginScreen() {
             style={styles.input}
             placeholder="Senha"
             secureTextEntry={true}
+            value={senha}
+            onChangeText={setSenha}
           />
         </View>
+
         <TouchableOpacity style={styles.boxForgot}>
           <Text style={styles.textForgot}>Esqueceu a senha?</Text>
         </TouchableOpacity>
       </View>
 
       <View style={styles.boxBottom}>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={handleLogin}>
           <Text style={styles.textButton}>Entrar</Text>
         </TouchableOpacity>
+
+        {erro ? <Text style={styles.erroText}>{erro}</Text> : null}
 
         <Link href="/register" push asChild>
           <TouchableOpacity>
             <Text style={styles.textBottom}>
               Não tem conta?
-              <Text style={{ color: themas.colors.primary }}> Cadastre-se</Text>
+              <Text style={{ color: themas.colors.primary }}>
+                {" "}Cadastre-se
+              </Text>
             </Text>
           </TouchableOpacity>
         </Link>
@@ -82,7 +111,6 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
     justifyContent: "center",
-    flexDirection: "column",
   },
   boxMid: {
     height: Dimensions.get("window").height / 3,
@@ -104,23 +132,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     shadowColor: themas.colors.secundary,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.29,
     shadowRadius: 4.65,
     elevation: 7,
   },
   boxInput: {
     width: "100%",
-    height: 40,
-    borderWidth: 1,
-    borderRadius: 11,
+    height: 50,
+    borderRadius: 12,
     marginTop: 12,
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 30,
+    paddingHorizontal: 15,
     backgroundColor: themas.colors.bgInputs,
   },
   logo: {
@@ -162,5 +186,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "500",
     paddingRight: 10,
+  },
+
+  erroText: {
+    color: "red",
+    fontSize: 14,
+    marginTop: 15,
+    textAlign: "center",
+    fontWeight: "500",
   },
 });
