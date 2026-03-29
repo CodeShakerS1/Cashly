@@ -19,29 +19,30 @@ export default function RegisterScreen() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
+  const [erro, setErro] = useState("");
 
   const handleRegister = () => {
     if (!nome || !email || !senha || !confirmarSenha) {
-      alert("Preencha todos os campos");
+      setErro("Preencha todos os campos");
       return;
     }
 
     if (!email.includes("@")) {
-      alert("Email inválido");
+      setErro("Email inválido");
       return;
     }
 
     if (senha.length < 6) {
-      alert("Senha muito curta");
+      setErro("Senha muito curta");
       return;
     }
 
     if (senha !== confirmarSenha) {
-      alert("As senhas não coincidem");
+      setErro("As senhas não coincidem");
       return;
     }
 
-    alert("Conta criada com sucesso!");
+    setErro("");
     router.replace("/");
   };
 
@@ -59,7 +60,6 @@ export default function RegisterScreen() {
           <TextInput
             style={styles.input}
             placeholder="Nome completo"
-            placeholderTextColor="#999"
             value={nome}
             onChangeText={setNome}
           />
@@ -70,7 +70,6 @@ export default function RegisterScreen() {
           <TextInput
             style={styles.input}
             placeholder="E-mail"
-            placeholderTextColor="#999"
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -84,7 +83,6 @@ export default function RegisterScreen() {
             style={styles.input}
             placeholder="Senha"
             secureTextEntry
-            placeholderTextColor="#999"
             value={senha}
             onChangeText={setSenha}
           />
@@ -96,7 +94,6 @@ export default function RegisterScreen() {
             style={styles.input}
             placeholder="Confirmar senha"
             secureTextEntry
-            placeholderTextColor="#999"
             value={confirmarSenha}
             onChangeText={setConfirmarSenha}
           />
@@ -115,6 +112,8 @@ export default function RegisterScreen() {
         <TouchableOpacity style={styles.button} onPress={handleRegister}>
           <Text style={styles.textButton}>Cadastrar</Text>
         </TouchableOpacity>
+
+        {erro ? <Text style={styles.erroText}>{erro}</Text> : null}
 
         <Link href="/login" push asChild>
           <TouchableOpacity>
@@ -210,5 +209,13 @@ const styles = StyleSheet.create({
     color: themas.colors.secundary,
     marginTop: 10,
     textAlign: "center",
+  },
+
+  erroText: {
+    color: "red",
+    fontSize: 14,
+    marginTop: 10,
+    textAlign: "center",
+    fontWeight: "500",
   },
 });
