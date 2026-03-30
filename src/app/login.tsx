@@ -27,7 +27,7 @@ export default function LoginScreen() {
     }
 
     setErro("");
-    router.replace("/tabs");
+    router.replace("/(tabs)");
   };
 
   return (
@@ -86,9 +86,7 @@ export default function LoginScreen() {
           <TouchableOpacity>
             <Text style={styles.textBottom}>
               Não tem conta?
-              <Text style={{ color: themas.colors.primary }}>
-                {" "}Cadastre-se
-              </Text>
+              <Text style={{ color: themas.colors.primary }}> Cadastre-se</Text>
             </Text>
           </TouchableOpacity>
         </Link>

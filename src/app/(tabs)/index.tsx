@@ -6,7 +6,20 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
+type Categorias = {
+  id: number;
+  icone: keyof typeof MaterialIcons.glyphMap;
+  nome: string;
+  valor: string;
+};
+
 export default function Index() {
+  const categorias: Categorias[] = [
+    { id: 1, icone: "restaurant", nome: "Alimentação", valor: "R$ 120,00" },
+    { id: 2, icone: "directions-car", nome: "Transporte", valor: "R$ 250,00" },
+    { id: 3, icone: "shopping-bag", nome: "Pessoal", valor: "R$ 150,00" },
+  ];
+
   const router = useRouter();
 
   const [periodo, setPeriodo] = useState("Mês Atual");
@@ -57,6 +70,23 @@ export default function Index() {
           <ChartBar />
         </View>
       </View>
+      <View style={styles.categoria}>
+        <Text style={styles.text4}>Categorias</Text>
+      </View>
+      <View style={styles.lista}>
+        {categorias.map((item) => (
+          <View key={item.id} style={styles.item}>
+            <MaterialIcons name={item.icone as any} size={18} color="#fff" />
+            <Text style={styles.nome}>{item.nome}</Text>
+            <Text style={styles.valor}>{item.valor}</Text>
+          </View>
+        ))}
+      </View>
+      <View style={styles.rota}>
+        <TouchableOpacity onPress={() => router.navigate("/(tabs)/category")}>
+          <Text style={styles.text5}>Ver Todas</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -94,22 +124,23 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   caixaDinheiro: {
-    gap: 8,
+    height: "15%",
+    gap: 5,
     backgroundColor: themas.colors.primary,
-    padding: 16,
+    padding: 15,
     borderRadius: 20,
     margin: 20,
     marginTop: 0,
   },
   relacao: {
-    borderRadius: 20,
+    borderRadius: 15,
     overflow: "hidden",
     backgroundColor: themas.colors.gray,
     alignSelf: "flex-start",
     flexDirection: "row",
     gap: 2,
     padding: 3,
-    marginLeft: 15,
+    marginLeft: 20,
   },
   text3: {
     color: themas.colors.secundary,
@@ -134,5 +165,47 @@ const styles = StyleSheet.create({
   chartInner: {
     flex: 2,
     overflow: "hidden",
+  },
+  categoria: {
+    alignItems: "flex-start",
+    marginLeft: 20,
+    marginTop: -10,
+  },
+  text4: {
+    color: themas.colors.secundary,
+    fontSize: 15,
+    fontWeight: "bold",
+  },
+  lista: {
+    padding: 7,
+    gap: 8,
+    margin: 13,
+    marginTop: -1,
+  },
+  item: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: themas.colors.gray,
+    borderRadius: 10,
+    padding: 6,
+  },
+  nome: {
+    color: themas.colors.platinium,
+    marginLeft: 10,
+  },
+  valor: {
+    color: themas.colors.platinium,
+    fontWeight: "bold",
+  },
+  text5: {
+    color: themas.colors.platinium,
+    fontSize: 12,
+    fontWeight: "medium",
+    marginTop: -16,
+    marginRight: 22,
+  },
+  rota: {
+    alignItems: "flex-end",
   },
 });
