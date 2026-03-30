@@ -43,7 +43,7 @@ export default function RegisterScreen() {
     }
 
     alert("Conta criada com sucesso!");
-    router.replace("/tabs");
+    router.replace("/(tabs)");
   };
 
   return (

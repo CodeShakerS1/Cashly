@@ -17,7 +17,7 @@ export function ChartBar() {
         yAxisThickness={0}
         xAxisThickness={0}
         width={width - 72}
-        height={120}
+        height={110}
         xAxisLabelTextStyle={{ color: "white" }}
         yAxisTextStyle={{ color: "white" }}
         isAnimated
