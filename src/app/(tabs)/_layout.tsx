@@ -11,20 +11,15 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: false,
         tabBarShowLabel: false,
-        tabBarStyle: {
-          backgroundColor: "#0F0F0F",
-        },
+        tabBarActiveTintColor: "#5BBF26",
+        tabBarStyle: { backgroundColor: "#0F0F0F" },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          tabBarIcon: () => (
-            <MaterialIcons
-              name="home"
-              size={24}
-              color={themas.colors.primary}
-            />
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="home" size={24} color={color} />
           ),
         }}
       />
@@ -37,12 +32,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="category"
         options={{
-          tabBarIcon: () => (
-            <MaterialIcons
-              name="list"
-              size={24}
-              color={themas.colors.bgScreen}
-            />
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="list" size={24} color={color} />
           ),
         }}
       />
@@ -53,7 +44,7 @@ export default function TabLayout() {
           tabBarButton: () => (
             <TouchableOpacity
               style={styles.addButton}
-              onPress={() => router.push("/transactions")}
+              onPress={() => router.push("/modal")}
               activeOpacity={0.8}
             >
               <View style={styles.addButtonInner}>
@@ -66,12 +57,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="relatory"
         options={{
-          tabBarIcon: () => (
-            <MaterialIcons
-              name="bar-chart"
-              size={24}
-              color={themas.colors.bgScreen}
-            />
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="bar-chart" size={24} color={color} />
           ),
         }}
       />
@@ -84,12 +71,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="settings"
         options={{
-          tabBarIcon: () => (
-            <MaterialIcons
-              name="settings"
-              size={24}
-              color={themas.colors.bgScreen}
-            />
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="settings" size={24} color={color} />
           ),
         }}
       />
