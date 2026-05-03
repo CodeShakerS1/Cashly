@@ -5,8 +5,13 @@ import { StyleSheet, Text, View } from "react-native";
 export function Header() {
   return (
     <View style={styles.conteiner}>
-      <Text style={styles.text1}> Total de Gastos</Text>
-      <Text style={styles.text2}>
+      <Text style={styles.text1}>Gastos</Text>
+      <Text
+        style={styles.text2}
+        numberOfLines={1}
+        adjustsFontSizeToFit
+        minimumFontScale={0.5}
+      >
         R${" "}
         {totalGastos.toLocaleString("pt-BR", {
           minimumFractionDigits: 2,
@@ -18,17 +23,18 @@ export function Header() {
 
 const styles = StyleSheet.create({
   conteiner: {
-    gap: 6,
-    alignItems: "center",
+    gap: 1,
     justifyContent: "center",
+    alignItems: "center",
+    width: "100%",
   },
   text1: {
     fontSize: 13,
     color: themas.colors.secundary,
-    fontWeight: "medium",
+    fontWeight: 600,
   },
   text2: {
-    fontSize: 15,
+    fontSize: 13,
     fontWeight: "bold",
     color: themas.colors.secundary,
   },

@@ -13,14 +13,16 @@ import {
 import Logo from "../assets/images/logo.png";
 import { themas } from "../theme/themes";
 
+import { useAuth } from "@/src/contexts/auth";
+
 export default function LoginScreen() {
   const router = useRouter();
 
-  const [usuario, setUsuario] = useState(null);
-  const [logado, setLogado] = useState(false);
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState("");
+
+  const { saveUser } = useAuth();
 
   async function loginUser() {
     if (!email || !senha) {
@@ -48,10 +50,8 @@ export default function LoginScreen() {
       const data = await response.json();
       console.log("Resposta:", data);
 
-      setUsuario(data);
-      setLogado(true);
-
-      router.replace("/(tabs)");
+      saveUser(data);
+      router.push("/(tabs)");
     } catch (error) {
       setErro("Erro de conexão" + error);
     }

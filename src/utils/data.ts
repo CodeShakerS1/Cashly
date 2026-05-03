@@ -1,11 +1,11 @@
 export const barData = [
-  { value: 500, label: "Dom" },
-  { value: 345, label: "Seg" },
-  { value: 654, label: "Ter" },
-  { value: 678, label: "Qua" },
-  { value: 765, label: "Qui" },
-  { value: 78, label: "Sex" },
-  { value: 800, label: "Sáb" },
+  { value: 40, label: "D" },
+  { value: 40, label: "S" },
+  { value: 60, label: "T" },
+  { value: 20, label: "Q" },
+  { value: 30, label: "Q" },
+  { value: 80, label: "S" },
+  { value: 10, label: "S" },
 ];
 
 export const totalGastos = barData.reduce((acc, item) => {

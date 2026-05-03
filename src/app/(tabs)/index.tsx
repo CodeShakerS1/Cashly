@@ -3,8 +3,10 @@ import { Header } from "@/src/components/Header/Header";
 import { themas } from "@/src/theme/themes";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import React, { useState } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+
+import { useAuth } from "@/src/contexts/auth";
 
 type Categorias = {
   id: number;
@@ -24,15 +26,14 @@ export default function Index() {
 
   const [periodo, setPeriodo] = useState("Mês Atual");
 
+  const { user } = useAuth();
+
   return (
     <View style={styles.screen}>
       <View style={styles.container}>
         <View style={styles.box1}>
-          <Image
-            source={require("../../assets/images/usuario.png")}
-            style={styles.icone}
-          />
-          <Text style={styles.text}>Olá, josefa</Text>
+          <Image source={{ uri: user?.foto }} style={styles.icone} />
+          <Text style={styles.text}>Olá, {user?.nome}</Text>
         </View>
         <View>
           <TouchableOpacity onPress={() => router.navigate("/notification")}>
@@ -65,9 +66,11 @@ export default function Index() {
         </TouchableOpacity>
       </View>
       <View style={styles.chart}>
-        <Header />
         <View style={styles.chartInner}>
           <ChartBar />
+        </View>
+        <View style={{ alignItems: "flex-end", width: 80 }}>
+          <Header />
         </View>
       </View>
       <View style={styles.categoria}>
@@ -157,13 +160,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     backgroundColor: themas.colors.gray,
+    maxWidth: 500,
     padding: 16,
     borderRadius: 20,
     margin: 20,
-    flexDirection: "row-reverse",
+    flexDirection: "row",
   },
   chartInner: {
-    flex: 2,
+    flex: 3,
+    paddingRight: 10,
     overflow: "hidden",
   },
   categoria: {
