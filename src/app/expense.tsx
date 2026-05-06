@@ -11,12 +11,12 @@ import {
   View,
 } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
+import { Button } from "../components/Button";
 import { themas } from "../theme/themes";
 
-// aqui é a tipagem
 type OpcaoPagamento = {
-  icone: keyof typeof MaterialIcons.glyphMap; // isso eu já vi tu usando
-  label: string; // o valor que vai passar na despesa
+  icone: keyof typeof MaterialIcons.glyphMap;
+  label: string;
 };
 
 export default function ExpenseScreen() {
@@ -24,8 +24,10 @@ export default function ExpenseScreen() {
   const [text, setText] = useState("");
   const [number, setNumber] = useState("");
   const [value, setValue] = useState(null);
-  const [modalVisible, setModalVisible] = useState(false); // os estados que é boleano se mostra a o modal ou não
-  const [selectedMethod, setSelectedMethod] = useState<OpcaoPagamento | null>(null); // aqui passando o tipo e guardando o que tu escolheu
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedMethod, setSelectedMethod] = useState<OpcaoPagamento | null>(
+    null,
+  );
 
   const opcoes: OpcaoPagamento[] = [
     { label: "PIX", icone: "grid-view" },
@@ -42,35 +44,38 @@ export default function ExpenseScreen() {
     { label: "Saúde", value: 5 },
     { label: "Moradia", value: 6 },
   ];
-  // TIRA OS COMENTARIOS DPS kkkk
+
   function SelectOption(opcao: OpcaoPagamento) {
-    setSelectedMethod(opcao); // aqui ele captura a opção que tu escolheu
-    setModalVisible(false); // quando escolher ele fecha o modal
+    setSelectedMethod(opcao);
+    setModalVisible(false);
   }
 
   return (
     <ScrollView style={styles.screen}>
       <View style={styles.container}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={styles.backButton}
+          >
             <MaterialIcons name="arrow-back" size={24} color="white" />
           </TouchableOpacity>
           <View style={styles.textContainer}>
-            <Text style={styles.text1}>Nova </Text>
-            <Text style={styles.text2}>Despesa</Text>
+            <Text style={styles.textWhite}>Nova </Text>
+            <Text style={styles.textGreen}>Despesa</Text>
           </View>
         </View>
 
-        <Text style={styles.text3}>Nome da Despesa</Text>
+        <Text style={styles.subTitle}>Nome da Despesa</Text>
         <TextInput
           style={styles.input}
           onChangeText={setText}
           value={text}
           placeholder="Adicionar Nome"
-          placeholderTextColor="#888"
+          placeholderTextColor="#5BBF26"
         />
 
-        <Text style={styles.text3}>Valor da Despesa</Text>
+        <Text style={styles.subTitle}>Valor da Despesa</Text>
         <View style={styles.containerInput}>
           <Text style={styles.prefix}>R$</Text>
           <TextInput
@@ -78,12 +83,12 @@ export default function ExpenseScreen() {
             onChangeText={setNumber}
             value={number}
             placeholder="0,00"
-            placeholderTextColor="#888"
+            placeholderTextColor="#5BBF26"
             keyboardType="numeric"
           />
         </View>
 
-        <Text style={styles.text3}>Categoria</Text>
+        <Text style={styles.subTitle}>Categoria</Text>
         <Dropdown
           data={categorias}
           labelField="label"
@@ -98,15 +103,21 @@ export default function ExpenseScreen() {
           onChange={(item) => setValue(item.value)}
         />
 
-        <Text style={styles.text3}>Método</Text>
-        <TouchableOpacity 
-          style={styles.methodSelector} 
+        <Text style={styles.subTitle}>Método</Text>
+        <TouchableOpacity
+          style={styles.methodSelector}
           onPress={() => setModalVisible(true)}
         >
-          {selectedMethod ? ( // isso aqui é uma substituição em vez de escrever um por um ele faz um map pra colocar cada elemento
+          {selectedMethod ? (
             <View style={styles.selectedMethodRow}>
-              <MaterialIcons name={selectedMethod.icone} size={24} color={themas.colors.primary} />
-              <Text style={styles.selectedMethodText}>{selectedMethod.label}</Text>
+              <MaterialIcons
+                name={selectedMethod.icone}
+                size={24}
+                color={themas.colors.primary}
+              />
+              <Text style={styles.selectedMethodText}>
+                {selectedMethod.label}
+              </Text>
             </View>
           ) : (
             <Text style={styles.placeholderStyle}>Selecione um método</Text>
@@ -115,9 +126,9 @@ export default function ExpenseScreen() {
 
         <Modal
           visible={modalVisible}
-          transparent={true} // isso é uma propriedade do modal pra gente ver o fundo da tela
-          animationType="fade" // isso é pra animação ficar suave
-          onRequestClose={() => setModalVisible(false)} // isso é uma propiedade pra android pode acontecer de alguem clicar em voltar e voltar a tela em vez do modal
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setModalVisible(false)}
         >
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
@@ -129,7 +140,7 @@ export default function ExpenseScreen() {
                   style={styles.optionCard}
                   onPress={() => SelectOption(item)}
                 >
-                  <MaterialIcons name={item.icone} size={24} color="#4CAF50" />
+                  <MaterialIcons name={item.icone} size={24} color="#5BBF26" />
                   <Text style={styles.optionLabel}>{item.label}</Text>
                 </TouchableOpacity>
               ))}
@@ -140,6 +151,11 @@ export default function ExpenseScreen() {
             </View>
           </View>
         </Modal>
+
+        <Button
+          titulo="Adicionar Despesa"
+          onPress={() => router.push("/(tabs)/details")}
+        />
       </View>
     </ScrollView>
   );
@@ -152,32 +168,32 @@ const styles = StyleSheet.create({
   },
   container: {
     margin: 20,
-    paddingBottom: 40
+    paddingBottom: 40,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     height: 50,
   },
   backButton: {
-    position: 'absolute',
+    position: "absolute",
     left: 0,
   },
   textContainer: {
     flexDirection: "row",
   },
-  text1: {
+  textWhite: {
     color: themas.colors.secundary,
     fontSize: 18,
     fontWeight: "400",
   },
-  text2: {
+  textGreen: {
     color: themas.colors.primary,
     fontSize: 18,
     fontWeight: "600",
   },
-  text3: {
+  subTitle: {
     color: themas.colors.secundary,
     fontSize: 15,
     fontWeight: "600",
@@ -201,7 +217,7 @@ const styles = StyleSheet.create({
   },
   prefix: {
     fontSize: 16,
-    color: "white",
+    color: themas.colors.primary,
     marginRight: 5,
   },
   inputClean: {
@@ -217,7 +233,7 @@ const styles = StyleSheet.create({
   },
   placeholderStyle: {
     fontSize: 16,
-    color: "#888",
+    color: themas.colors.primary,
   },
   selectedTextStyle: {
     fontSize: 16,
@@ -236,15 +252,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   selectedMethodRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   selectedMethodText: {
     color: themas.colors.primary,
     fontSize: 16,
     marginLeft: 10,
   },
-
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.8)",
@@ -275,7 +290,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   optionLabel: {
-    color: "#4CAF50",
+    color: themas.colors.primary,
     fontSize: 18,
     fontWeight: "600",
     marginLeft: 10,
