@@ -1,4 +1,3 @@
-````markdown
 # 💰 Cashly - Controle Financeiro Personalizado
 
 Transforme sua vida financeira com um dashboard semanal, categorização inteligente e controle total de receitas e despesas!
@@ -47,53 +46,46 @@ Suas informações financeiras ficam protegidas e acessíveis apenas para você.
 ## 🧰 Tecnologias Usadas
 
 ### 📱 Frontend Mobile
-- :contentReference[oaicite:0]{index=0}
-- :contentReference[oaicite:1]{index=1}
-- :contentReference[oaicite:2]{index=2}
+- React Native
+- Expo
+- TypeScript
 
 ### ⚙️ Backend
-- :contentReference[oaicite:3]{index=3}
-
-### 🛠️ Ferramentas
-- :contentReference[oaicite:4]{index=4}
-- :contentReference[oaicite:5]{index=5}
+- Java
+- Spring Boot
+- MySQL
+- Docker
 
 ---
 
 ## ⚙️ Começando
 
 ### 📥 Clone o repositório
-
 ```bash
 git clone https://github.com/CodeShakerS1/Cashly.git
-````
+```
 
 ### 📂 Acesse a pasta do projeto
-
 ```bash
 cd Cashly
 ```
 
 ### 📦 Instale as dependências
-
 ```bash
 npm install
 ```
 
 ### ▶️ Inicie o aplicativo
-
 ```bash
 npx expo start
 ```
 
 ### 📱 Execute o aplicativo
-
 No terminal, escolha uma das opções disponíveis para abrir o aplicativo em:
-
-* 📱 Expo Go
-* 🤖 Android Emulator
-* 🍎 iOS Simulator
-* 🛠️ Development Build
+- 📱 Expo Go
+- 🤖 Android Emulator
+- 🍎 iOS Simulator
+- 🛠️ Development Build
 
 ---
 
@@ -112,24 +104,21 @@ Se você tiver sugestões de melhorias, correções de bugs ou novas funcionalid
 
 ## 👥 Contribuidores
 
-* [Andressa Andrade](https://github.com/dressaDevv?utm_source=chatgpt.com)
-* [Alexander Emanuel](https://github.com/AlexSm121?utm_source=chatgpt.com)
-* [Joás Fortunato](https://github.com/JoasFortunato?utm_source=chatgpt.com)
-* [João Victor da Silva](https://github.com/joaovsilva18?utm_source=chatgpt.com)
-* [José Elias](https://github.com/eliastk0?utm_source=chatgpt.com)
-* [Mariana Melo](https://github.com/marianameelo?utm_source=chatgpt.com)
+- [Andressa Andrade](https://github.com/dressaDevv)
+- [Alexander Emanuel](https://github.com/AlexSm121)
+- [Joás Fortunato](https://github.com/JoasFortunato)
+- [João Victor da Silva](https://github.com/joaovsilva18)
+- [José Elias](https://github.com/eliastk0)
+- [Mariana Melo](https://github.com/marianameelo)
 
 ---
 
 ## 🔗 Link do Projeto
 
-[Cashly no GitHub](https://github.com/CodeShakerS1/Cashly?utm_source=chatgpt.com)
+[Cashly no GitHub](https://github.com/CodeShakerS1/Cashly)
 
 ---
 
 ## 📄 Licença
 
 Este projeto foi desenvolvido para fins acadêmicos e de aprendizado.
-
-```
-```
