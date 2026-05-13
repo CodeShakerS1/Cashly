@@ -1,16 +1,7 @@
 import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-} from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 
-import {
-  Ionicons,
-  MaterialIcons,
-  Feather,
-} from "@expo/vector-icons";
+import { Feather, Ionicons, MaterialIcons } from "@expo/vector-icons";
 
 export default function NotificationsScreen() {
   return (
@@ -22,37 +13,23 @@ export default function NotificationsScreen() {
         <View style={styles.header}>
           <Text style={styles.title}>Notificações</Text>
 
-          <Ionicons
-            name="notifications"
-            size={22}
-            color="#FFFFFF"
-          />
+          <Ionicons name="notifications" size={22} color="#FFFFFF" />
         </View>
 
         <View style={styles.alertCard}>
           <View style={styles.row}>
-            <Ionicons
-              name="warning"
-              size={20}
-              color="#FFD600"
-            />
+            <Ionicons name="warning" size={20} color="#FFD600" />
 
-            <Text style={styles.alertTitle}>
-              {" "}ALERTA TETO DE GASTO
-            </Text>
+            <Text style={styles.alertTitle}> ALERTA TETO DE GASTO</Text>
           </View>
 
           <Text style={styles.alertText}>
-            Ei, Josefa! Você já usou 70% (R$95,50)
-            do seu teto estipulado de R$120,00 para
-            <Text style={styles.greenText}>
-              {" "}Alimentação.
-            </Text>
+            Ei, Josefa! Você já usou 70% (R$95,50) do seu teto estipulado de
+            R$120,00 para
+            <Text style={styles.greenText}> Alimentação.</Text>
           </Text>
 
-          <Text style={styles.alertText}>
-            Hora de segurar o delivery?
-          </Text>
+          <Text style={styles.alertText}>Hora de segurar o delivery?</Text>
 
           <View style={styles.progressBackground}>
             <View style={styles.progressFill}>
@@ -71,9 +48,7 @@ export default function NotificationsScreen() {
               color="#6CFF2B"
             />
 
-            <Text style={styles.cardTitle}>
-              {" "}Receita Recebida
-            </Text>
+            <Text style={styles.cardTitle}> Receita Recebida</Text>
           </View>
 
           <Text style={styles.cardText}>
@@ -83,15 +58,9 @@ export default function NotificationsScreen() {
 
         <View style={styles.card}>
           <View style={styles.row}>
-            <Feather
-              name="trending-up"
-              size={24}
-              color="#6CFF2B"
-            />
+            <Feather name="trending-up" size={24} color="#6CFF2B" />
 
-            <Text style={styles.cardTitle}>
-              {" "}Insight da Semana
-            </Text>
+            <Text style={styles.cardTitle}> Insight da Semana</Text>
           </View>
 
           <Text style={styles.cardText}>
@@ -101,15 +70,9 @@ export default function NotificationsScreen() {
 
         <View style={styles.card}>
           <View style={styles.row}>
-            <Ionicons
-              name="warning"
-              size={20}
-              color="#FFD600"
-            />
+            <Ionicons name="warning" size={20} color="#FFD600" />
 
-            <Text style={styles.cardTitle}>
-              {" "}Atenção: Transporte
-            </Text>
+            <Text style={styles.cardTitle}> Atenção: Transporte</Text>
           </View>
 
           <Text style={styles.cardText}>
@@ -138,7 +101,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
-    
+
     gap: 8,
     marginBottom: 30,
   },
