@@ -19,13 +19,13 @@ export default function LoginScreen() {
   const router = useRouter();
 
   const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
+  const [password, setPassword] = useState("");
   const [erro, setErro] = useState("");
 
   const { saveUser } = useAuth();
 
   async function loginUser() {
-    if (!email || !senha) {
+    if (!email || !password) {
       setErro("Preencha todos os campos");
       return;
     }
@@ -33,13 +33,13 @@ export default function LoginScreen() {
     setErro("");
 
     try {
-      const response = await fetch("http://localhost:8080/usuario/login", {
+      const response = await fetch("http://localhost:8080/user/login", {
         method: "POST",
         headers: {
           Accept: "application/json",
           "Content-type": "application/json",
         },
-        body: JSON.stringify({ email, senha }),
+        body: JSON.stringify({ email, password }),
       });
 
       if (!response.ok) {
@@ -92,8 +92,8 @@ export default function LoginScreen() {
             style={styles.input}
             placeholder="Senha"
             secureTextEntry={true}
-            value={senha}
-            onChangeText={setSenha}
+            value={password}
+            onChangeText={setPassword}
           />
         </View>
 

@@ -3,88 +3,156 @@ import { Header } from "@/src/components/Header/Header";
 import { themas } from "@/src/theme/themes";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 import { useAuth } from "@/src/contexts/auth";
 
-type Categorias = {
-  id: number;
-  icone: keyof typeof MaterialIcons.glyphMap;
-  nome: string;
-  valor: string;
+type Dashboard = {
+  categories: { categoryName: string; icon: string; total: number }[];
+  weeklyChart: { day: string; total: number }[];
+  totalBalance: number;
+  weeklyExpensesTotal: number;
 };
 
 export default function Index() {
-  const categorias: Categorias[] = [
-    { id: 1, icone: "restaurant", nome: "Alimentação", valor: "R$ 120,00" },
-    { id: 2, icone: "directions-car", nome: "Transporte", valor: "R$ 250,00" },
-    { id: 3, icone: "shopping-bag", nome: "Pessoal", valor: "R$ 150,00" },
-  ];
-
   const router = useRouter();
+  const [periodo, setPeriodo] = useState("Semana Atual");
+  const [week, setWeek] = useState<"current" | "previous">("current");
 
-  const [periodo, setPeriodo] = useState("Mês Atual");
+  const [erro, setErro] = useState("");
+  const [dashboard, setDashboard] = useState<Dashboard | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const { user } = useAuth();
+
+  useEffect(() => {
+    async function DashboardUser() {
+      try {
+        setLoading(true);
+        setErro("");
+
+        const response = await fetch(
+          `http://localhost:8080/dashboard/${user?.id}?week=${week}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          },
+        );
+
+        if (!response.ok) {
+          setErro("Erro ao carregar");
+          return;
+        }
+
+        const data = await response.json();
+
+        console.log("Resposta:", data);
+
+        setDashboard(data);
+      } catch (error) {
+        setErro("Erro de conexão: " + error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (user?.id) {
+      DashboardUser();
+    }
+  }, [user, week]); // Sempre que week mudar, refaz a requisição
+
+  if (loading) {
+    return <ActivityIndicator size="large" />;
+  }
+
+  if (erro) {
+    return <Text>Erro: {erro}</Text>;
+  }
 
   return (
     <View style={styles.screen}>
       <View style={styles.container}>
         <View style={styles.box1}>
-          <Image source={{ uri: user?.foto }} style={styles.icone} />
-          <Text style={styles.text}>Olá, {user?.nome}</Text>
+          <Image source={{ uri: user?.photo }} style={styles.icone} />
+          <Text style={styles.text}>Olá, {user?.name}</Text>
         </View>
-        <View>
-          <TouchableOpacity onPress={() => router.navigate("/notification")}>
-            <MaterialIcons name="notifications" size={24} color="white" />
-          </TouchableOpacity>
-        </View>
+
+        <TouchableOpacity onPress={() => router.navigate("/notification")}>
+          <MaterialIcons name="notifications" size={24} color="white" />
+        </TouchableOpacity>
       </View>
+
       <View style={styles.caixaDinheiro}>
         <Text style={styles.text}>Saldo total</Text>
-        <Text style={styles.text2}>R$ 123,79</Text>
+        <Text style={styles.text2}>R$ {dashboard?.totalBalance}</Text>
       </View>
+
       <View style={styles.relacao}>
         <TouchableOpacity
           style={[
             styles.button,
             periodo === "Semana Passada" && styles.buttonAtivo,
           ]}
-          onPress={() => setPeriodo("Semana Passada")}
+          onPress={() => {
+            setPeriodo("Semana Passada");
+            setWeek("previous");
+          }}
         >
           <Text style={styles.text3}>Semana Passada</Text>
         </TouchableOpacity>
+
         <TouchableOpacity
           style={[
             styles.button,
-            periodo === "Nesta Semana" && styles.buttonAtivo,
+            periodo === "Semana Atual" && styles.buttonAtivo,
           ]}
-          onPress={() => setPeriodo("Nesta Semana")}
+          onPress={() => {
+            setPeriodo("Semana Atual");
+            setWeek("current");
+          }}
         >
-          <Text style={styles.text3}>Nesta Semana</Text>
+          <Text style={styles.text3}>Semana Atual</Text>
         </TouchableOpacity>
       </View>
+
       <View style={styles.chart}>
         <View style={styles.chartInner}>
-          <ChartBar />
+          {dashboard?.weeklyChart && (
+            <ChartBar DadosWeek={dashboard.weeklyChart} />
+          )}
         </View>
+
         <View style={{ alignItems: "flex-end", width: 80 }}>
-          <Header />
+          {dashboard?.weeklyExpensesTotal !== undefined && (
+            <Header DadosWeekTotal={dashboard.weeklyExpensesTotal} />
+          )}
         </View>
       </View>
+
       <View style={styles.categoria}>
         <Text style={styles.text4}>Categorias</Text>
       </View>
+
       <View style={styles.lista}>
-        {categorias.map((item) => (
-          <View key={item.id} style={styles.item}>
-            <MaterialIcons name={item.icone as any} size={18} color="#fff" />
-            <Text style={styles.nome}>{item.nome}</Text>
-            <Text style={styles.valor}>{item.valor}</Text>
+        {dashboard?.categories.map((item) => (
+          <View key={item.categoryName} style={styles.item}>
+            <MaterialIcons name={item.icon as any} size={18} color="#fff" />
+            <Text style={styles.nome}>{item.categoryName}</Text>
+            <Text style={styles.valor}>{item.total}</Text>
           </View>
         ))}
       </View>
+
       <View style={styles.rota}>
         <TouchableOpacity onPress={() => router.navigate("/(tabs)/category")}>
           <Text style={styles.text5}>Ver Todas</Text>
@@ -154,7 +222,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 17,
   },
   buttonAtivo: {
-    backgroundColor: themas.colors.gray,
+    backgroundColor: themas.colors.primary,
   },
   chart: {
     alignItems: "center",

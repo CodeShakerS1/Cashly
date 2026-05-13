@@ -1,8 +1,11 @@
 import { themas } from "@/src/theme/themes";
-import { totalGastos } from "@/src/utils/data";
 import { StyleSheet, Text, View } from "react-native";
 
-export function Header() {
+type Props = {
+  DadosWeekTotal: number;
+};
+
+export function Header({ DadosWeekTotal }: Props) {
   return (
     <View style={styles.conteiner}>
       <Text style={styles.text1}>Gastos</Text>
@@ -13,7 +16,7 @@ export function Header() {
         minimumFontScale={0.5}
       >
         R${" "}
-        {totalGastos.toLocaleString("pt-BR", {
+        {DadosWeekTotal.toLocaleString("pt-BR", {
           minimumFractionDigits: 2,
         })}
       </Text>

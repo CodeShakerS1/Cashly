@@ -1,9 +1,17 @@
-import { barData } from "@/src/utils/data";
 import { useWindowDimensions, View } from "react-native";
 import { BarChart } from "react-native-gifted-charts";
 
-export function ChartBar() {
+type Props = {
+  DadosWeek: { total: number; day: string }[];
+};
+
+export function ChartBar({ DadosWeek }: Props) {
   const { width } = useWindowDimensions();
+
+  const dados = DadosWeek.map((item) => ({
+    value: item.total,
+    label: item.day,
+  }));
 
   return (
     <View>
@@ -12,7 +20,7 @@ export function ChartBar() {
         noOfSections={3}
         barBorderRadius={4}
         frontColor="#5BBF26"
-        data={barData}
+        data={dados}
         spacing={10}
         yAxisThickness={0}
         xAxisThickness={0}

@@ -12,12 +12,10 @@ export default function SettingsScreen() {
       <Text style={styles.title}>Editar Perfil</Text>
 
       <View style={styles.card}>
-        {/* Avatar fake */}
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>J</Text>
         </View>
 
-        {/* Nome */}
         <Text style={styles.label}>Nome</Text>
         <TextInput
           style={styles.input}
@@ -25,7 +23,6 @@ export default function SettingsScreen() {
           placeholderTextColor="#888"
         />
 
-        {/* Email */}
         <Text style={styles.label}>Email</Text>
         <TextInput
           style={styles.input}
@@ -34,7 +31,6 @@ export default function SettingsScreen() {
           keyboardType="email-address"
         />
 
-        {/* Senha */}
         <Text style={styles.label}>Senha</Text>
         <TextInput
           style={styles.input}
@@ -43,13 +39,11 @@ export default function SettingsScreen() {
           secureTextEntry
         />
 
-        {/* Botão salvar */}
         <TouchableOpacity style={styles.saveButton}>
           <Text style={styles.saveText}>Salvar</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Sair */}
       <TouchableOpacity style={styles.logoutButton}>
         <Text style={styles.logoutText}>Sair da conta</Text>
       </TouchableOpacity>
