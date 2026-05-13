@@ -6,9 +6,9 @@ type Props = {
 
 type Usuario = {
   id: string;
-  nome: string;
+  name: string;
   email: string;
-  foto: string;
+  photo: string;
 };
 
 type AuthContextType = {
