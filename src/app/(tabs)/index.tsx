@@ -24,8 +24,9 @@ type Dashboard = {
 
 export default function Index() {
   const router = useRouter();
-
   const [periodo, setPeriodo] = useState("Semana Atual");
+  const [week, setWeek] = useState<"current" | "previous">("current");
+
   const [erro, setErro] = useState("");
   const [dashboard, setDashboard] = useState<Dashboard | null>(null);
   const [loading, setLoading] = useState(true);
@@ -35,12 +36,15 @@ export default function Index() {
   useEffect(() => {
     async function DashboardUser() {
       try {
+        setLoading(true);
+        setErro("");
+
         const response = await fetch(
-          "http://localhost:8080/dashboard/5?week=current",
+          `http://localhost:8080/dashboard/${user?.id}?week=${week}`,
           {
             method: "GET",
             headers: {
-              "Content-type": "application/json",
+              "Content-Type": "application/json",
             },
           },
         );
@@ -56,17 +60,21 @@ export default function Index() {
 
         setDashboard(data);
       } catch (error) {
-        setErro("Erro de conexão" + error);
+        setErro("Erro de conexão: " + error);
       } finally {
         setLoading(false);
       }
     }
-    if (user?.id) DashboardUser();
-  }, [user]);
+
+    if (user?.id) {
+      DashboardUser();
+    }
+  }, [user, week]); // Sempre que week mudar, refaz a requisição
 
   if (loading) {
     return <ActivityIndicator size="large" />;
   }
+
   if (erro) {
     return <Text>Erro: {erro}</Text>;
   }
@@ -78,51 +86,63 @@ export default function Index() {
           <Image source={{ uri: user?.photo }} style={styles.icone} />
           <Text style={styles.text}>Olá, {user?.name}</Text>
         </View>
-        <View>
-          <TouchableOpacity onPress={() => router.navigate("/notification")}>
-            <MaterialIcons name="notifications" size={24} color="white" />
-          </TouchableOpacity>
-        </View>
+
+        <TouchableOpacity onPress={() => router.navigate("/notification")}>
+          <MaterialIcons name="notifications" size={24} color="white" />
+        </TouchableOpacity>
       </View>
+
       <View style={styles.caixaDinheiro}>
         <Text style={styles.text}>Saldo total</Text>
         <Text style={styles.text2}>R$ {dashboard?.totalBalance}</Text>
       </View>
+
       <View style={styles.relacao}>
         <TouchableOpacity
           style={[
             styles.button,
             periodo === "Semana Passada" && styles.buttonAtivo,
           ]}
-          onPress={() => setPeriodo("Semana Passada")}
+          onPress={() => {
+            setPeriodo("Semana Passada");
+            setWeek("previous");
+          }}
         >
           <Text style={styles.text3}>Semana Passada</Text>
         </TouchableOpacity>
+
         <TouchableOpacity
           style={[
             styles.button,
-            periodo === "Nesta Semana" && styles.buttonAtivo,
+            periodo === "Semana Atual" && styles.buttonAtivo,
           ]}
-          onPress={() => setPeriodo("Nesta Semana")}
+          onPress={() => {
+            setPeriodo("Semana Atual");
+            setWeek("current");
+          }}
         >
           <Text style={styles.text3}>Semana Atual</Text>
         </TouchableOpacity>
       </View>
+
       <View style={styles.chart}>
         <View style={styles.chartInner}>
           {dashboard?.weeklyChart && (
             <ChartBar DadosWeek={dashboard.weeklyChart} />
           )}
         </View>
+
         <View style={{ alignItems: "flex-end", width: 80 }}>
-          {dashboard?.weeklyExpensesTotal && (
+          {dashboard?.weeklyExpensesTotal !== undefined && (
             <Header DadosWeekTotal={dashboard.weeklyExpensesTotal} />
           )}
         </View>
       </View>
+
       <View style={styles.categoria}>
         <Text style={styles.text4}>Categorias</Text>
       </View>
+
       <View style={styles.lista}>
         {dashboard?.categories.map((item) => (
           <View key={item.categoryName} style={styles.item}>
@@ -132,6 +152,7 @@ export default function Index() {
           </View>
         ))}
       </View>
+
       <View style={styles.rota}>
         <TouchableOpacity onPress={() => router.navigate("/(tabs)/category")}>
           <Text style={styles.text5}>Ver Todas</Text>
