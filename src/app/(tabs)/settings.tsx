@@ -1,122 +1,236 @@
+import React from "react";
 import {
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
   View,
+  Text,
+  StyleSheet,
+  ScrollView,
 } from "react-native";
 
-export default function SettingsScreen() {
+import {
+  Ionicons,
+  MaterialIcons,
+  Feather,
+} from "@expo/vector-icons";
+
+export default function NotificationsScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Editar Perfil</Text>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        {/* HEADER */}
+        <View style={styles.header}>
+          <Text style={styles.title}>Notificações</Text>
 
-      <View style={styles.card}>
-        {/* Avatar fake */}
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>J</Text>
+          <Ionicons
+            name="notifications"
+            size={22}
+            color="#FFFFFF"
+          />
         </View>
 
-        {/* Nome */}
-        <Text style={styles.label}>Nome</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Josefa"
-          placeholderTextColor="#888"
-        />
+        {/* CARD 1 */}
+        <View style={styles.alertCard}>
+          <View style={styles.row}>
+            <Ionicons
+              name="warning"
+              size={20}
+              color="#FFD600"
+            />
 
-        {/* Email */}
-        <Text style={styles.label}>Email</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="josefa@gmail.com"
-          placeholderTextColor="#888"
-          keyboardType="email-address"
-        />
+            <Text style={styles.alertTitle}>
+              {" "}ALERTA TETO DE GASTO
+            </Text>
+          </View>
 
-        {/* Senha */}
-        <Text style={styles.label}>Senha</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="********"
-          placeholderTextColor="#888"
-          secureTextEntry
-        />
+          <Text style={styles.alertText}>
+            Ei, Josefa! Você já usou 85% (R$102,00)
+            do seu teto estipulado de R$120,00 para
+            <Text style={styles.greenText}>
+              {" "}Alimentação.
+            </Text>
+          </Text>
 
-        {/* Botão salvar */}
-        <TouchableOpacity style={styles.saveButton}>
-          <Text style={styles.saveText}>Salvar</Text>
-        </TouchableOpacity>
-      </View>
+          <Text style={styles.alertText}>
+            Hora de segurar o delivery?
+          </Text>
 
-      {/* Sair */}
-      <TouchableOpacity style={styles.logoutButton}>
-        <Text style={styles.logoutText}>Sair da conta</Text>
-      </TouchableOpacity>
+          <View style={styles.progressBackground}>
+            <View style={styles.progressFill}>
+              <Text style={styles.progressText}>85%</Text>
+
+              <View style={styles.redEnd} />
+            </View>
+          </View>
+        </View>
+
+        {/* CARD 2 */}
+        <View style={styles.card}>
+          <View style={styles.row}>
+            <MaterialIcons
+              name="account-balance-wallet"
+              size={24}
+              color="#6CFF2B"
+            />
+
+            <Text style={styles.cardTitle}>
+              {" "}Receita Recebida
+            </Text>
+          </View>
+
+          <Text style={styles.cardText}>
+            R$ 1600,00 de salário adicionados!
+          </Text>
+        </View>
+
+        {/* CARD 3 */}
+        <View style={styles.card}>
+          <View style={styles.row}>
+            <Feather
+              name="trending-up"
+              size={24}
+              color="#6CFF2B"
+            />
+
+            <Text style={styles.cardTitle}>
+              {" "}Insight da Semana
+            </Text>
+          </View>
+
+          <Text style={styles.cardText}>
+            Você gastou 10% a menos com transporte esta semana.
+          </Text>
+        </View>
+
+        {/* CARD 4 */}
+        <View style={styles.card}>
+          <View style={styles.row}>
+            <Ionicons
+              name="warning"
+              size={20}
+              color="#FFD600"
+            />
+
+            <Text style={styles.cardTitle}>
+              {" "}Atenção: Transporte
+            </Text>
+          </View>
+
+          <Text style={styles.cardText}>
+            Restam apenas R$ 50,00 na sua categoria transporte.
+          </Text>
+        </View>
+
+        {/* ESPAÇO FINAL */}
+        <View style={{ height: 120 }} />
+      </ScrollView>
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0d0d0d",
-    padding: 20,
-    justifyContent: "center",
+    backgroundColor: "#000000",
   },
+
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingTop: 25,
+    paddingBottom: 40,
+  },
+
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 30,
+  },
+
   title: {
-    color: "#fff",
-    fontSize: 20,
-    textAlign: "center",
-    marginBottom: 20,
-    fontWeight: "bold",
+    color: "#FFFFFF",
+    fontSize: 30,
+    fontWeight: "700",
   },
-  card: {
-    backgroundColor: "#1a1a1a",
-    borderRadius: 20,
+
+  alertCard: {
+    backgroundColor: "#0D0D0D",
+    borderRadius: 25,
     padding: 20,
+    marginBottom: 18,
   },
-  avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: "#4cd137",
-    justifyContent: "center",
+
+  card: {
+    backgroundColor: "#0D0D0D",
+    borderRadius: 25,
+    padding: 20,
+    marginBottom: 18,
+  },
+
+  row: {
+    flexDirection: "row",
     alignItems: "center",
-    alignSelf: "center",
-    marginBottom: 15,
+    marginBottom: 12,
   },
-  avatarText: {
-    color: "#000",
-    fontSize: 28,
-    fontWeight: "bold",
+
+  alertTitle: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontWeight: "700",
   },
-  label: {
-    color: "#aaa",
-    marginBottom: 5,
-    marginTop: 10,
+
+  cardTitle: {
+    color: "#FFFFFF",
+    fontSize: 17,
+    fontWeight: "700",
   },
-  input: {
-    backgroundColor: "#2a2a2a",
-    borderRadius: 10,
-    padding: 12,
-    color: "#fff",
+
+  alertText: {
+    color: "#D9D9D9",
+    fontSize: 16,
+    lineHeight: 24,
   },
-  saveButton: {
-    backgroundColor: "#4cd137",
-    padding: 15,
-    borderRadius: 10,
-    marginTop: 20,
+
+  cardText: {
+    color: "#D9D9D9",
+    fontSize: 16,
+    lineHeight: 24,
+  },
+
+  greenText: {
+    color: "#6CFF2B",
+    fontWeight: "700",
+  },
+
+  progressBackground: {
+    width: "100%",
+    height: 18,
+    backgroundColor: "#2A2A2A",
+    borderRadius: 20,
+    marginTop: 18,
+    overflow: "hidden",
+  },
+
+  progressFill: {
+    width: "85%",
+    height: "100%",
+    backgroundColor: "#6CFF2B",
+    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "flex-end",
   },
-  saveText: {
-    color: "#000",
-    fontWeight: "bold",
+
+  progressText: {
+    color: "#FFFFFF",
+    fontWeight: "700",
+    marginRight: 8,
+    fontSize: 12,
   },
-  logoutButton: {
-    marginTop: 20,
-    alignItems: "center",
-  },
-  logoutText: {
-    color: "#ff4d4d",
+
+  redEnd: {
+    width: 18,
+    height: "100%",
+    backgroundColor: "#FF2B2B",
   },
 });
