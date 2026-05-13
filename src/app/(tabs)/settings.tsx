@@ -1,236 +1,116 @@
-import React from "react";
 import {
-  View,
-  Text,
   StyleSheet,
-  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
-import {
-  Ionicons,
-  MaterialIcons,
-  Feather,
-} from "@expo/vector-icons";
-
-export default function NotificationsScreen() {
+export default function SettingsScreen() {
   return (
     <View style={styles.container}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
-        {/* HEADER */}
-        <View style={styles.header}>
-          <Text style={styles.title}>Notificações</Text>
+      <Text style={styles.title}>Editar Perfil</Text>
 
-          <Ionicons
-            name="notifications"
-            size={22}
-            color="#FFFFFF"
-          />
+      <View style={styles.card}>
+        <View style={styles.avatar}>
+          <Text style={styles.avatarText}>J</Text>
         </View>
 
-        {/* CARD 1 */}
-        <View style={styles.alertCard}>
-          <View style={styles.row}>
-            <Ionicons
-              name="warning"
-              size={20}
-              color="#FFD600"
-            />
+        <Text style={styles.label}>Nome</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Josefa"
+          placeholderTextColor="#888"
+        />
 
-            <Text style={styles.alertTitle}>
-              {" "}ALERTA TETO DE GASTO
-            </Text>
-          </View>
+        <Text style={styles.label}>Email</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="josefa@gmail.com"
+          placeholderTextColor="#888"
+          keyboardType="email-address"
+        />
 
-          <Text style={styles.alertText}>
-            Ei, Josefa! Você já usou 85% (R$102,00)
-            do seu teto estipulado de R$120,00 para
-            <Text style={styles.greenText}>
-              {" "}Alimentação.
-            </Text>
-          </Text>
+        <Text style={styles.label}>Senha</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="********"
+          placeholderTextColor="#888"
+          secureTextEntry
+        />
 
-          <Text style={styles.alertText}>
-            Hora de segurar o delivery?
-          </Text>
+        <TouchableOpacity style={styles.saveButton}>
+          <Text style={styles.saveText}>Salvar</Text>
+        </TouchableOpacity>
+      </View>
 
-          <View style={styles.progressBackground}>
-            <View style={styles.progressFill}>
-              <Text style={styles.progressText}>85%</Text>
-
-              <View style={styles.redEnd} />
-            </View>
-          </View>
-        </View>
-
-        {/* CARD 2 */}
-        <View style={styles.card}>
-          <View style={styles.row}>
-            <MaterialIcons
-              name="account-balance-wallet"
-              size={24}
-              color="#6CFF2B"
-            />
-
-            <Text style={styles.cardTitle}>
-              {" "}Receita Recebida
-            </Text>
-          </View>
-
-          <Text style={styles.cardText}>
-            R$ 1600,00 de salário adicionados!
-          </Text>
-        </View>
-
-        {/* CARD 3 */}
-        <View style={styles.card}>
-          <View style={styles.row}>
-            <Feather
-              name="trending-up"
-              size={24}
-              color="#6CFF2B"
-            />
-
-            <Text style={styles.cardTitle}>
-              {" "}Insight da Semana
-            </Text>
-          </View>
-
-          <Text style={styles.cardText}>
-            Você gastou 10% a menos com transporte esta semana.
-          </Text>
-        </View>
-
-        {/* CARD 4 */}
-        <View style={styles.card}>
-          <View style={styles.row}>
-            <Ionicons
-              name="warning"
-              size={20}
-              color="#FFD600"
-            />
-
-            <Text style={styles.cardTitle}>
-              {" "}Atenção: Transporte
-            </Text>
-          </View>
-
-          <Text style={styles.cardText}>
-            Restam apenas R$ 50,00 na sua categoria transporte.
-          </Text>
-        </View>
-
-        {/* ESPAÇO FINAL */}
-        <View style={{ height: 120 }} />
-      </ScrollView>
+      <TouchableOpacity style={styles.logoutButton}>
+        <Text style={styles.logoutText}>Sair da conta</Text>
+      </TouchableOpacity>
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#000000",
+    backgroundColor: "#0d0d0d",
+    padding: 20,
+    justifyContent: "center",
   },
-
-  scrollContent: {
-    paddingHorizontal: 20,
-    paddingTop: 25,
-    paddingBottom: 40,
-  },
-
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    marginBottom: 30,
-  },
-
   title: {
-    color: "#FFFFFF",
-    fontSize: 30,
-    fontWeight: "700",
+    color: "#fff",
+    fontSize: 20,
+    textAlign: "center",
+    marginBottom: 20,
+    fontWeight: "bold",
   },
-
-  alertCard: {
-    backgroundColor: "#0D0D0D",
-    borderRadius: 25,
-    padding: 20,
-    marginBottom: 18,
-  },
-
   card: {
-    backgroundColor: "#0D0D0D",
-    borderRadius: 25,
-    padding: 20,
-    marginBottom: 18,
-  },
-
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-
-  alertTitle: {
-    color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "700",
-  },
-
-  cardTitle: {
-    color: "#FFFFFF",
-    fontSize: 17,
-    fontWeight: "700",
-  },
-
-  alertText: {
-    color: "#D9D9D9",
-    fontSize: 16,
-    lineHeight: 24,
-  },
-
-  cardText: {
-    color: "#D9D9D9",
-    fontSize: 16,
-    lineHeight: 24,
-  },
-
-  greenText: {
-    color: "#6CFF2B",
-    fontWeight: "700",
-  },
-
-  progressBackground: {
-    width: "100%",
-    height: 18,
-    backgroundColor: "#2A2A2A",
+    backgroundColor: "#1a1a1a",
     borderRadius: 20,
-    marginTop: 18,
-    overflow: "hidden",
+    padding: 20,
   },
-
-  progressFill: {
-    width: "85%",
-    height: "100%",
-    backgroundColor: "#6CFF2B",
-    flexDirection: "row",
+  avatar: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: "#4cd137",
+    justifyContent: "center",
     alignItems: "center",
-    justifyContent: "flex-end",
+    alignSelf: "center",
+    marginBottom: 15,
   },
-
-  progressText: {
-    color: "#FFFFFF",
-    fontWeight: "700",
-    marginRight: 8,
-    fontSize: 12,
+  avatarText: {
+    color: "#000",
+    fontSize: 28,
+    fontWeight: "bold",
   },
-
-  redEnd: {
-    width: 18,
-    height: "100%",
-    backgroundColor: "#FF2B2B",
+  label: {
+    color: "#aaa",
+    marginBottom: 5,
+    marginTop: 10,
+  },
+  input: {
+    backgroundColor: "#2a2a2a",
+    borderRadius: 10,
+    padding: 12,
+    color: "#fff",
+  },
+  saveButton: {
+    backgroundColor: "#4cd137",
+    padding: 15,
+    borderRadius: 10,
+    marginTop: 20,
+    alignItems: "center",
+  },
+  saveText: {
+    color: "#000",
+    fontWeight: "bold",
+  },
+  logoutButton: {
+    marginTop: 20,
+    alignItems: "center",
+  },
+  logoutText: {
+    color: "#ff4d4d",
   },
 });
