@@ -76,6 +76,12 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="record"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }

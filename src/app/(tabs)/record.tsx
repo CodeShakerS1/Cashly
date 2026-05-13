@@ -1,9 +1,9 @@
 import { Text, View } from "react-native";
 
-export default function CategoryScreen() {
+export default function RecordScreen() {
   return (
     <View>
-      <Text>Tela De relatorio</Text>
+      <Text>Tela De Historico</Text>
     </View>
   );
 }

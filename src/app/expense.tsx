@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
     backgroundColor: themas.colors.bgScreen,
   },
   container: {
-    margin: 20,
+    margin: 40,
     paddingBottom: 40,
   },
   header: {
@@ -198,10 +198,10 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "600",
     paddingTop: 25,
-    marginBottom: 8,
+    marginBottom: 5,
   },
   input: {
-    height: 50,
+    height: 60,
     borderRadius: 13,
     paddingHorizontal: 15,
     backgroundColor: themas.colors.bgInputs,
@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
     backgroundColor: themas.colors.bgInputs,
     borderRadius: 13,
     paddingHorizontal: 15,
-    height: 50,
+    height: 60,
   },
   prefix: {
     fontSize: 16,
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   dropdown: {
-    height: 50,
+    height: 60,
     backgroundColor: themas.colors.bgInputs,
     borderRadius: 13,
     paddingHorizontal: 15,
@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
   },
   methodSelector: {
     backgroundColor: themas.colors.bgInputs,
-    height: 55,
+    height: 60,
     borderRadius: 13,
     paddingHorizontal: 15,
     justifyContent: "center",
