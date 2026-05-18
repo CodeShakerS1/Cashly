@@ -1,3 +1,4 @@
+import { useAuth } from "@/src/contexts/auth";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -18,13 +19,23 @@ type OpcaoPagamento = {
 };
 
 export default function IncomeScreen() {
+  const { user } = useAuth();
+
   const router = useRouter();
+  const [erro, setErro] = useState("");
   const [text, setText] = useState("");
   const [number, setNumber] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedMethod, setSelectedMethod] = useState<OpcaoPagamento | null>(
     null,
   );
+
+  const opcaoMap: Record<string, string> = {
+    PIX: "Pix",
+    Débito: "Debit",
+    Crédito: "Credit",
+    Dinheiro: "Cash",
+  };
 
   const opcoes: OpcaoPagamento[] = [
     { label: "PIX", icone: "grid-view" },
@@ -36,6 +47,32 @@ export default function IncomeScreen() {
   function selectOption(opcao: OpcaoPagamento) {
     setSelectedMethod(opcao);
     setModalVisible(false);
+  }
+
+  async function AddIncome() {
+    try {
+      const response = await fetch("http://localhost:8080/income", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify({
+          name: text,
+          amount: parseFloat(number.replace(",", ".")),
+          method: opcaoMap[selectedMethod?.label ?? ""],
+          userId: user?.id,
+        }),
+      });
+
+      if (!response.ok) {
+        setErro("Tente novamente");
+        return;
+      }
+      router.back();
+    } catch (error) {
+      setErro("Erro de conexão" + error);
+    }
   }
 
   return (
@@ -123,11 +160,10 @@ export default function IncomeScreen() {
           </View>
         </Modal>
 
+        {erro ? <Text style={styles.errorText}>{erro}</Text> : null}
+
         <View style={styles.styleButton}>
-          <Button
-            titulo="Adicionar Receita"
-            onPress={() => router.push("/(tabs)")}
-          />
+          <Button titulo="Adicionar Receita" onPress={AddIncome} />
         </View>
       </View>
     </View>
@@ -265,5 +301,10 @@ const styles = StyleSheet.create({
   },
   styleButton: {
     marginTop: 60,
+  },
+  errorText: {
+    color: "red",
+    marginTop: 10,
+    textAlign: "center",
   },
 });

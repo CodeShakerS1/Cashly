@@ -2,8 +2,9 @@ import { ChartBar } from "@/src/components/Chart/Chart";
 import { Header } from "@/src/components/Header/Header";
 import { themas } from "@/src/theme/themes";
 import { MaterialIcons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import { useFocusEffect, useRouter } from "expo-router";
+import React, { useCallback, useState } from "react";
+
 import {
   ActivityIndicator,
   Image,
@@ -24,6 +25,7 @@ type Dashboard = {
 
 export default function Index() {
   const router = useRouter();
+
   const [periodo, setPeriodo] = useState("Semana Atual");
   const [week, setWeek] = useState<"current" | "previous">("current");
 
@@ -33,43 +35,44 @@ export default function Index() {
 
   const { user } = useAuth();
 
-  useEffect(() => {
-    async function DashboardUser() {
-      try {
-        setLoading(true);
-        setErro("");
+  useFocusEffect(
+    useCallback(() => {
+      async function DashboardUser() {
+        try {
+          setLoading(true);
+          setErro("");
 
-        const response = await fetch(
-          `http://localhost:8080/dashboard/${user?.id}?week=${week}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
+          const response = await fetch(
+            `http://localhost:8080/dashboard/${user?.id}?week=${week}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+              },
             },
-          },
-        );
+          );
 
-        if (!response.ok) {
-          setErro("Erro ao carregar");
-          return;
+          if (!response.ok) {
+            setErro("Erro ao carregar");
+            return;
+          }
+
+          const data = await response.json();
+
+          console.log("Resposta:", data);
+
+          setDashboard(data);
+        } catch (error) {
+          setErro("Erro de conexão: " + error);
+        } finally {
+          setLoading(false);
         }
-
-        const data = await response.json();
-
-        console.log("Resposta:", data);
-
-        setDashboard(data);
-      } catch (error) {
-        setErro("Erro de conexão: " + error);
-      } finally {
-        setLoading(false);
       }
-    }
-
-    if (user?.id) {
-      DashboardUser();
-    }
-  }, [user, week]);
+      if (user?.id) {
+        DashboardUser();
+      }
+    }, [user, week]),
+  );
 
   if (loading) {
     return <ActivityIndicator size="large" />;
