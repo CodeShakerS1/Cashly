@@ -62,6 +62,7 @@ export default function IncomeScreen() {
           amount: parseFloat(number.replace(",", ".")),
           method: opcaoMap[selectedMethod?.label ?? ""],
           userId: user?.id,
+          date: new Date().toISOString().split("T")[0],
         }),
       });
 
