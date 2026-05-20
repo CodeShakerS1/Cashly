@@ -1,40 +1,97 @@
 import { Ionicons } from "@expo/vector-icons";
-import { FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useFocusEffect, useLocalSearchParams } from "expo-router";
+import React, { useCallback, useEffect, useState } from "react";
+import {
+  FlatList,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { useAuth } from "../../contexts/auth";
 import { themas } from "../../theme/themes";
 
-const transactions = [
-  {
-    id: "1",
-    title: "Refrigerante 2L",
-    type: "Pix",
-    value: "R$ 10,00",
-    date: "15 mar",
-  },
-  {
-    id: "2",
-    title: "Rodízio",
-    type: "Débito",
-    value: "R$ 80,00",
-    date: "14 mar",
-  },
-  {
-    id: "3",
-    title: "Bolo de morango",
-    type: "Pix",
-    value: "R$ 30,00",
-    date: "13 mar",
-  },
-];
-
 export default function CategoryDetailsScreen() {
-  // futuramente esses dados virão da categoria clicada
+  const { user } = useAuth();
+  const { categoryId, categoryName, categoryIcon, categoryLimit } =
+    useLocalSearchParams();
+  const [transactions, setTransactions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const category = {
-    title: "Alimentação",
-    value: "R$ 120,00",
-    limit: "R$ 150,00",
-    icon: "restaurant-outline",
-    progress: "70%",
+    id: String(categoryId),
+    title: String(categoryName || "Categoria"),
+    icon: String(categoryIcon || "restaurant-outline"),
+    limitAmount: Number(categoryLimit || 0),
   };
+  console.log("Dados da categoria:", category);
+
+  const fetchExpenses = async () => {
+    try {
+      setLoading(true);
+
+      const response = await fetch(
+        `http://localhost:8080/expense/user/${user?.id}/category/${category.id}`,
+      );
+
+      if (!response.ok) {
+        throw new Error("Erro ao carregar despesas");
+      }
+
+      const data = await response.json();
+      console.log("Despesas recebidas:", data);
+
+      const formattedExpenses = data.map((item: any) => ({
+        id: String(item.id),
+        title: item.name,
+        type: item.method,
+        value: `R$ ${Number(item.amount).toFixed(2).replace(".", ",")}`,
+        date: item.date,
+      }));
+
+      setTransactions(formattedExpenses);
+    } catch (error) {
+      console.error("Erro ao buscar despesas:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (user?.id && category.id) {
+      fetchExpenses();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, category.id]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (user?.id && category.id && category.id !== "undefined") {
+        fetchExpenses();
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [user?.id, category.id]),
+  );
+
+  const totalSpent = transactions.reduce((sum, item) => {
+    const value = Number(
+      item.value.replace("R$", "").replace(".", "").replace(",", ".").trim(),
+    );
+    return sum + value;
+  }, 0);
+  console.log("Total gasto calculado:", totalSpent);
+
+  const progress =
+    category.limitAmount > 0
+      ? Math.min((totalSpent / category.limitAmount) * 100, 100)
+      : 0;
+  console.log("Percentual de uso do limite:", progress);
+
+  const formattedTotal = `R$ ${totalSpent.toFixed(2).replace(".", ",")}`;
+
+  const formattedLimit = `R$ ${category.limitAmount
+    .toFixed(2)
+    .replace(".", ",")}`;
 
   const renderTransaction = ({ item }: any) => (
     <View style={styles.transactionCard}>
@@ -45,25 +102,17 @@ export default function CategoryDetailsScreen() {
             size={20}
             color={themas.colors.primary}
           />
-
           <Text style={styles.date}>{item.date}</Text>
         </View>
 
         <View style={styles.textContainer}>
-          <Text style={styles.transactionTitle}>
-            {item.title}
-          </Text>
-
-          <Text style={styles.transactionType}>
-            {item.type}
-          </Text>
+          <Text style={styles.transactionTitle}>{item.title}</Text>
+          <Text style={styles.transactionType}>{item.type}</Text>
         </View>
       </View>
 
       <View style={styles.rightContent}>
-        <Text style={styles.transactionValue}>
-          {item.value}
-        </Text>
+        <Text style={styles.transactionValue}>{item.value}</Text>
 
         <TouchableOpacity style={styles.moreButton}>
           <Ionicons
@@ -75,6 +124,22 @@ export default function CategoryDetailsScreen() {
       </View>
     </View>
   );
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <Text
+          style={{
+            color: "#FFF",
+            textAlign: "center",
+            marginTop: 50,
+          }}
+        >
+          Carregando...
+        </Text>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -95,45 +160,44 @@ export default function CategoryDetailsScreen() {
                   />
                 </View>
 
-                <Text style={styles.headerTitle}>
-                  Detalhes da Categoria
-                </Text>
+                <Text style={styles.headerTitle}>Detalhes da Categoria</Text>
               </View>
 
               <TouchableOpacity style={styles.editButton}>
-                <Ionicons
-                  name="pencil"
-                  size={18}
-                  color="#000"
-                />
+                <Ionicons name="pencil" size={18} color="#000" />
               </TouchableOpacity>
             </View>
 
             <View style={styles.infoContainer}>
-              <Text style={styles.categoryName}>
-                {category.title}
-              </Text>
+              <Text style={styles.categoryName}>{category.title}</Text>
 
-              <Text style={styles.categoryValue}>
-                {category.value}
-              </Text>
+              <Text style={styles.categoryValue}>{formattedTotal}</Text>
 
               <View style={styles.progressBackground}>
                 <View
                   style={[
                     styles.progressFill,
-                    { width: category.progress as any },
+                    { width: `${progress}%` as any },
                   ]}
                 />
               </View>
 
-              <Text style={styles.limitText}>
-                Limite : {category.limit}
-              </Text>
+              <Text style={styles.limitText}>Limite : {formattedLimit}</Text>
             </View>
           </>
         }
         renderItem={renderTransaction}
+        ListEmptyComponent={
+          <Text
+            style={{
+              color: "#999",
+              textAlign: "center",
+              marginTop: 30,
+            }}
+          >
+            Nenhuma despesa encontrada.
+          </Text>
+        }
       />
     </SafeAreaView>
   );
