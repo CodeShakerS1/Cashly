@@ -2,7 +2,6 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { Link, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  Alert,
   Image,
   StyleSheet,
   Text,
@@ -22,59 +21,66 @@ export default function RegisterScreen() {
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
   const [erro, setErro] = useState("");
+  const [carregando, setCarregando] = useState(false);
 
-  const handleRegister = async () => {
-    setErro("");
-
-    if (!nome || !email || !senha || !confirmarSenha) {
-      setErro("Preencha todos os campos");
-      return;
+  function validarCampos() {
+    if (!nome.trim() || !email.trim() || !senha || !confirmarSenha) {
+      return "Preencha todos os campos";
     }
 
     if (!email.includes("@")) {
-      setErro("Email inválido");
-      return;
+      return "Insira um e-mail válido";
     }
 
     if (senha.length < 6) {
-      setErro("A senha deve ter pelo menos 6 caracteres");
-      return;
+      return "A senha deve ter pelo menos 6 caracteres";
     }
 
     if (senha !== confirmarSenha) {
-      setErro("As senhas não coincidem");
+      return "As senhas não coincidem";
+    }
+
+    return null;
+  }
+
+  async function handleRegister() {
+    const erroValidacao = validarCampos();
+
+    if (erroValidacao) {
+      setErro(erroValidacao);
       return;
     }
 
+    setErro("");
+    setCarregando(true);
+
     try {
-      const response = await fetch("http://10.0.2.2:8080/user", {
+      const cadastroResponse = await fetch("http://localhost:8080/user", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: nome,
-          email: email,
+          name: nome.trim(),
+          email: email.trim().toLowerCase(),
           password: senha,
+          photo:
+            "https://www.pngall.com/wp-content/uploads/5/User-Profile-PNG-High-Quality-Image.png",
         }),
       });
 
-      const data = await response.text();
-
-      if (!response.ok) {
-        setErro(data || "Erro ao cadastrar");
-        return;
+      if (!cadastroResponse.ok) {
+        const mensagemErro = await cadastroResponse.text();
+        throw new Error(mensagemErro || "Erro ao cadastrar usuário");
       }
-
-      Alert.alert("Sucesso", "Conta criada com sucesso!");
-
-      router.replace("/(tabs)");
-    } catch (error) {
-      console.log(error);
-
-      setErro("Não foi possível conectar ao servidor");
+      router.replace("/login");
+    } catch (error: any) {
+      console.error("Erro no cadastro:", error);
+      setErro(error.message || "Não foi possível conectar ao servidor");
+    } finally {
+      setCarregando(false);
     }
-  };
+  }
 
   return (
     <View style={styles.container}>
@@ -91,7 +97,6 @@ export default function RegisterScreen() {
             size={20}
             color={themas.colors.secundary}
           />
-
           <TextInput
             style={styles.input}
             placeholder="Nome completo"
@@ -107,7 +112,6 @@ export default function RegisterScreen() {
             size={20}
             color={themas.colors.secundary}
           />
-
           <TextInput
             style={styles.input}
             placeholder="E-mail"
@@ -125,7 +129,6 @@ export default function RegisterScreen() {
             size={20}
             color={themas.colors.secundary}
           />
-
           <TextInput
             style={styles.input}
             placeholder="Senha"
@@ -142,7 +145,6 @@ export default function RegisterScreen() {
             size={20}
             color={themas.colors.secundary}
           />
-
           <TextInput
             style={styles.input}
             placeholder="Confirmar senha"
@@ -157,22 +159,24 @@ export default function RegisterScreen() {
 
         <Text style={styles.textBottom}>
           Ao continuar você concorda com os nossos
+          <Text style={{ color: themas.colors.primary }}> Termos de Uso </Text>e
           <Text style={{ color: themas.colors.primary }}>
             {" "}
-            Termos de Uso
-          </Text>
-          e
-          <Text style={{ color: themas.colors.primary }}>
-            {" "}
-            Política de Privacidade
+            Política de Privacidade{" "}
           </Text>
           .
         </Text>
       </View>
 
       <View style={styles.boxBottom}>
-        <TouchableOpacity style={styles.button} onPress={handleRegister}>
-          <Text style={styles.textButton}>Cadastrar</Text>
+        <TouchableOpacity
+          style={[styles.button, carregando && { opacity: 0.7 }]}
+          onPress={handleRegister}
+          disabled={carregando}
+        >
+          <Text style={styles.textButton}>
+            {carregando ? "Cadastrando..." : "Cadastrar"}
+          </Text>
         </TouchableOpacity>
 
         <Link href="/login" push asChild>
