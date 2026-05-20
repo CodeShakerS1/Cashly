@@ -2,6 +2,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { Link, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
+  Alert,
   Image,
   StyleSheet,
   Text,
@@ -9,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+
 import Logo from "../assets/images/logo.png";
 import { themas } from "../theme/themes";
 
@@ -21,7 +23,9 @@ export default function RegisterScreen() {
   const [confirmarSenha, setConfirmarSenha] = useState("");
   const [erro, setErro] = useState("");
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
+    setErro("");
+
     if (!nome || !email || !senha || !confirmarSenha) {
       setErro("Preencha todos os campos");
       return;
@@ -33,7 +37,7 @@ export default function RegisterScreen() {
     }
 
     if (senha.length < 6) {
-      setErro("Senha muito curta");
+      setErro("A senha deve ter pelo menos 6 caracteres");
       return;
     }
 
@@ -42,8 +46,34 @@ export default function RegisterScreen() {
       return;
     }
 
-    alert("Conta criada com sucesso!");
-    router.replace("/(tabs)");
+    try {
+      const response = await fetch("http://10.0.2.2:8080/user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: nome,
+          email: email,
+          password: senha,
+        }),
+      });
+
+      const data = await response.text();
+
+      if (!response.ok) {
+        setErro(data || "Erro ao cadastrar");
+        return;
+      }
+
+      Alert.alert("Sucesso", "Conta criada com sucesso!");
+
+      router.replace("/(tabs)");
+    } catch (error) {
+      console.log(error);
+
+      setErro("Não foi possível conectar ao servidor");
+    }
   };
 
   return (
@@ -61,9 +91,11 @@ export default function RegisterScreen() {
             size={20}
             color={themas.colors.secundary}
           />
+
           <TextInput
             style={styles.input}
             placeholder="Nome completo"
+            placeholderTextColor="#999"
             value={nome}
             onChangeText={setNome}
           />
@@ -75,13 +107,15 @@ export default function RegisterScreen() {
             size={20}
             color={themas.colors.secundary}
           />
+
           <TextInput
             style={styles.input}
             placeholder="E-mail"
-            value={email}
-            onChangeText={setEmail}
+            placeholderTextColor="#999"
             keyboardType="email-address"
             autoCapitalize="none"
+            value={email}
+            onChangeText={setEmail}
           />
         </View>
 
@@ -91,9 +125,11 @@ export default function RegisterScreen() {
             size={20}
             color={themas.colors.secundary}
           />
+
           <TextInput
             style={styles.input}
             placeholder="Senha"
+            placeholderTextColor="#999"
             secureTextEntry
             value={senha}
             onChangeText={setSenha}
@@ -106,18 +142,26 @@ export default function RegisterScreen() {
             size={20}
             color={themas.colors.secundary}
           />
+
           <TextInput
             style={styles.input}
             placeholder="Confirmar senha"
+            placeholderTextColor="#999"
             secureTextEntry
             value={confirmarSenha}
             onChangeText={setConfirmarSenha}
           />
         </View>
 
+        {erro ? <Text style={styles.erroText}>{erro}</Text> : null}
+
         <Text style={styles.textBottom}>
           Ao continuar você concorda com os nossos
-          <Text style={{ color: themas.colors.primary }}> Termos de Uso </Text>e
+          <Text style={{ color: themas.colors.primary }}>
+            {" "}
+            Termos de Uso
+          </Text>
+          e
           <Text style={{ color: themas.colors.primary }}>
             {" "}
             Política de Privacidade
@@ -131,13 +175,11 @@ export default function RegisterScreen() {
           <Text style={styles.textButton}>Cadastrar</Text>
         </TouchableOpacity>
 
-        {erro ? <Text style={styles.erroText}>{erro}</Text> : null}
-
         <Link href="/login" push asChild>
           <TouchableOpacity>
             <Text style={styles.textBottom}>
-              Já tem uma conta?{" "}
-              <Text style={{ color: themas.colors.primary }}>Entrar</Text>
+              Já tem uma conta?
+              <Text style={{ color: themas.colors.primary }}> Entrar</Text>
             </Text>
           </TouchableOpacity>
         </Link>
@@ -190,7 +232,7 @@ const styles = StyleSheet.create({
 
   boxInput: {
     width: "100%",
-    height: 50,
+    height: 55,
     borderRadius: 12,
     marginTop: 12,
     flexDirection: "row",
@@ -204,6 +246,7 @@ const styles = StyleSheet.create({
     height: "100%",
     marginLeft: 10,
     color: themas.colors.secundary,
+    fontSize: 16,
   },
 
   button: {
@@ -225,15 +268,15 @@ const styles = StyleSheet.create({
   textBottom: {
     fontSize: 14,
     color: themas.colors.secundary,
-    marginTop: 10,
+    marginTop: 15,
     textAlign: "center",
   },
 
   erroText: {
     color: "red",
     fontSize: 14,
-    marginTop: 10,
+    marginTop: 15,
     textAlign: "center",
-    fontWeight: "500",
+    fontWeight: "bold",
   },
 });
