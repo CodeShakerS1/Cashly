@@ -1,7 +1,7 @@
 import { useAuth } from "@/src/contexts/auth";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Modal,
   ScrollView,
@@ -20,16 +20,27 @@ type OpcaoPagamento = {
   label: string;
 };
 
+type Categoria = {
+  categoryid: number;
+  categoryname: string;
+  icon: string;
+  limitAmount: number;
+  userId: number;
+};
+
 export default function ExpenseScreen() {
   const { user } = useAuth();
   const router = useRouter();
   const [text, setText] = useState("");
   const [number, setNumber] = useState("");
-  const [value, setValue] = useState(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
+    null,
+  );
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedMethod, setSelectedMethod] = useState<OpcaoPagamento | null>(
     null,
   );
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
 
   const opcoes: OpcaoPagamento[] = [
     { label: "PIX", icone: "grid-view" },
@@ -38,21 +49,30 @@ export default function ExpenseScreen() {
     { label: "Dinheiro", icone: "paid" },
   ];
 
-  const categorias = [
-    { label: "Alimentação", value: 1 },
-    { label: "Transporte", value: 2 },
-    { label: "Assinatura", value: 3 },
-    { label: "Pessoal", value: 4 },
-    { label: "Saúde", value: 5 },
-    { label: "Moradia", value: 6 },
-  ];
-
   const opcaoMap: Record<string, string> = {
     PIX: "Pix",
     Débito: "Debit",
     Crédito: "Credit",
     Dinheiro: "Cash",
   };
+
+  useEffect(() => {
+    async function fetchCategorias() {
+      try {
+        const response = await fetch(
+          `http://localhost:8080/category/user/${user?.id}`,
+        );
+        const data: Categoria[] = await response.json();
+        setCategorias(data);
+      } catch (error) {
+        console.error("Erro ao buscar categorias:", error);
+      }
+    }
+
+    if (user?.id) {
+      fetchCategorias();
+    }
+  }, [user?.id]);
 
   function SelectOption(opcao: OpcaoPagamento) {
     setSelectedMethod(opcao);
@@ -67,25 +87,28 @@ export default function ExpenseScreen() {
           Accept: "application/json",
           "Content-type": "application/json",
         },
-
         body: JSON.stringify({
           name: text,
           amount: parseFloat(number.replace(",", ".")),
           method: opcaoMap[selectedMethod?.label ?? ""],
           userId: user?.id,
+          categoryId: selectedCategoryId,
           date: new Date().toISOString().split("T")[0],
         }),
       });
 
       const data = await response.json();
-
       console.log("Resposta:", data);
-
-      router.push("/(tabs)/details");
+      router.push("/(tabs)/category");
     } catch (error) {
       console.error("Erro ao salvar:", error);
     }
   }
+
+  const categoriasDropdown = categorias.map((cat) => ({
+    label: cat.categoryname,
+    value: cat.categoryid,
+  }));
 
   return (
     <ScrollView style={styles.screen}>
@@ -127,17 +150,17 @@ export default function ExpenseScreen() {
 
         <Text style={styles.subTitle}>Categoria</Text>
         <Dropdown
-          data={categorias}
+          data={categoriasDropdown}
           labelField="label"
           valueField="value"
           style={styles.dropdown}
           placeholderStyle={styles.placeholderStyle}
           selectedTextStyle={styles.selectedTextStyle}
           maxHeight={150}
-          value={value}
+          value={selectedCategoryId}
           placeholder="Selecione a Categoria"
           containerStyle={styles.containerStyle}
-          onChange={(item) => setValue(item.value)}
+          onChange={(item) => setSelectedCategoryId(item.value)}
         />
 
         <Text style={styles.subTitle}>Método</Text>
@@ -194,7 +217,6 @@ export default function ExpenseScreen() {
     </ScrollView>
   );
 }
-
 const styles = StyleSheet.create({
   screen: {
     flex: 1,

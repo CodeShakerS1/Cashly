@@ -1,4 +1,5 @@
 import { MaterialIcons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   Alert,
@@ -51,10 +52,11 @@ export default function CategoriesScreen() {
       const data = await response.json();
 
       const formattedCategories = data.map((item: any) => ({
-        id: String(item.id),
+        id: String(item.categoryid),
         title: item.categoryname,
         value: "R$ 0,00",
-        limit: `R$ ${item.limitAmount},00`,
+        limitAmount: Number(item.limitAmount),
+        limit: `R$ ${Number(item.limitAmount).toFixed(2).replace(".", ",")}`,
         icon: item.icon,
         progress: "0%",
       }));
@@ -118,9 +120,25 @@ export default function CategoriesScreen() {
     setSelectedIcon(item.icon);
     setDropdownKey((prev) => prev + 1);
   };
-
   const renderCategoryCard = ({ item }: any) => (
-    <View style={styles.card}>
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() =>
+        router.push({
+          pathname: "/details",
+          params: {
+            categoryId: String(item.id),
+            categoryName: item.title,
+            categoryIcon: item.icon,
+            categoryLimit: item.limit
+              .replace("R$", "")
+              .replace(".", "")
+              .replace(",", ".")
+              .trim(),
+          },
+        })
+      }
+    >
       <View style={styles.cardTop}>
         <View style={styles.leftContent}>
           <View style={styles.iconBox}>
@@ -144,7 +162,7 @@ export default function CategoriesScreen() {
       <View style={styles.progressBarBackground}>
         <View style={[styles.progressBar, { width: item.progress as any }]} />
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   const renderIconItem = (item: any) => (
