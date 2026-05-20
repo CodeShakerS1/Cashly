@@ -1,6 +1,6 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import React, { useEffect, useState } from "react";
+import { router, useFocusEffect } from "expo-router";
+import React, { useCallback, useState } from "react";
 import {
   Alert,
   FlatList,
@@ -51,15 +51,43 @@ export default function CategoriesScreen() {
 
       const data = await response.json();
 
-      const formattedCategories = data.map((item: any) => ({
-        id: String(item.categoryid),
-        title: item.categoryname,
-        value: "R$ 0,00",
-        limitAmount: Number(item.limitAmount),
-        limit: `R$ ${Number(item.limitAmount).toFixed(2).replace(".", ",")}`,
-        icon: item.icon,
-        progress: "0%",
-      }));
+      const formattedCategories = await Promise.all(
+        data.map(async (item: any) => {
+          let totalGasto = 0;
+
+          try {
+            const expenseResponse = await fetch(
+              `http://localhost:8080/expense/user/${user?.id}/category/${item.categoryid}`,
+            );
+
+            if (expenseResponse.ok) {
+              const expenses = await expenseResponse.json();
+              totalGasto = expenses.reduce(
+                (acc: number, expense: any) => acc + Number(expense.amount),
+                0,
+              );
+            }
+          } catch {
+            console.error(
+              `Erro ao buscar despesas para categoria ${item.categoryname}`,
+            );
+          }
+
+          const limite = Number(item.limitAmount);
+          const porcentagem = limite > 0 ? (totalGasto / limite) * 100 : 0;
+          const progressoClamped = Math.min(porcentagem, 100).toFixed(0);
+
+          return {
+            id: String(item.categoryid),
+            title: item.categoryname,
+            value: `R$ ${totalGasto.toFixed(2).replace(".", ",")}`,
+            limitAmount: limite,
+            limit: `R$ ${limite.toFixed(2).replace(".", ",")}`,
+            icon: item.icon,
+            progress: `${progressoClamped}%`,
+          };
+        }),
+      );
 
       setCategories(formattedCategories);
     } catch (error) {
@@ -67,12 +95,12 @@ export default function CategoriesScreen() {
     }
   };
 
-  useEffect(() => {
-    if (user?.id) {
+  useFocusEffect(
+    useCallback(() => {
       fetchCategories();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [user?.id]),
+  );
 
   const handleCreateCategory = async () => {
     if (!categoryName.trim() || !limit.trim() || !selectedIcon) {
