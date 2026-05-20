@@ -1,5 +1,4 @@
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { MaterialIcons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
 import {
   Alert,
@@ -17,11 +16,11 @@ import { useAuth } from "../../contexts/auth";
 import { themas } from "../../theme/themes";
 
 const ICON_OPTIONS = [
-  { label: "Alimentação", icon: "restaurant-outline" },
-  { label: "Transporte", icon: "bus-outline" },
-  { label: "Saúde", icon: "medkit-outline" },
-  { label: "Moradia", icon: "home-outline" },
-  { label: "Compras", icon: "bag-handle-outline" },
+  { label: "Alimentação", icon: "restaurant" },
+  { label: "Transporte", icon: "directions-bus" },
+  { label: "Saúde", icon: "medical-services" },
+  { label: "Moradia", icon: "home" },
+  { label: "Compras", icon: "shopping-bag" },
 ];
 
 export default function CategoriesScreen() {
@@ -30,7 +29,7 @@ export default function CategoriesScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [categoryName, setCategoryName] = useState("");
   const [limit, setLimit] = useState("");
-  const [selectedIcon, setSelectedIcon] = useState("restaurant-outline");
+  const [selectedIcon, setSelectedIcon] = useState("restaurant");
   const [categories, setCategories] = useState<any[]>([]);
   const [dropdownKey, setDropdownKey] = useState(0);
   const [focusedInput, setFocusedInput] = useState<string | null>(null);
@@ -52,11 +51,10 @@ export default function CategoriesScreen() {
       const data = await response.json();
 
       const formattedCategories = data.map((item: any) => ({
-        id: String(item.categoryid),
+        id: String(item.id),
         title: item.categoryname,
         value: "R$ 0,00",
-        limitAmount: Number(item.limitAmount),
-        limit: `R$ ${Number(item.limitAmount).toFixed(2).replace(".", ",")}`,
+        limit: `R$ ${item.limitAmount},00`,
         icon: item.icon,
         progress: "0%",
       }));
@@ -101,7 +99,7 @@ export default function CategoriesScreen() {
 
       setCategoryName("");
       setLimit("");
-      setSelectedIcon("restaurant-outline");
+      setSelectedIcon("restaurant");
       setDropdownKey((prev) => prev + 1);
       setModalVisible(false);
       await fetchCategories();
@@ -120,31 +118,13 @@ export default function CategoriesScreen() {
     setSelectedIcon(item.icon);
     setDropdownKey((prev) => prev + 1);
   };
-  const router = useRouter();
 
   const renderCategoryCard = ({ item }: any) => (
-    <TouchableOpacity
-      style={styles.card}
-      onPress={() =>
-        router.push({
-          pathname: "/details",
-          params: {
-            categoryId: String(item.id),
-            categoryName: item.title,
-            categoryIcon: item.icon,
-            categoryLimit: item.limit
-              .replace("R$", "")
-              .replace(".", "")
-              .replace(",", ".")
-              .trim(),
-          },
-        })
-      }
-    >
+    <View style={styles.card}>
       <View style={styles.cardTop}>
         <View style={styles.leftContent}>
           <View style={styles.iconBox}>
-            <Ionicons
+            <MaterialIcons
               name={item.icon as any}
               size={20}
               color={themas.colors.platinium}
@@ -164,13 +144,13 @@ export default function CategoriesScreen() {
       <View style={styles.progressBarBackground}>
         <View style={[styles.progressBar, { width: item.progress as any }]} />
       </View>
-    </TouchableOpacity>
+    </View>
   );
 
   const renderIconItem = (item: any) => (
     <View style={styles.dropdownRenderItem}>
       <View style={styles.dropdownIconBox}>
-        <Ionicons
+        <MaterialIcons
           name={item.icon as any}
           size={18}
           color={themas.colors.primary}
@@ -191,12 +171,10 @@ export default function CategoriesScreen() {
         ListHeaderComponent={
           <>
             <View style={styles.header}>
-              <Text style={styles.greeting}>Olá, Josefa!</Text>
-
               <TouchableOpacity style={styles.notificationButton}>
-                <Ionicons
-                  name="notifications-outline"
-                  size={18}
+                <MaterialIcons
+                  name="notifications"
+                  size={24}
                   color={themas.colors.platinium}
                 />
               </TouchableOpacity>
@@ -226,7 +204,7 @@ export default function CategoriesScreen() {
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
               <TouchableOpacity onPress={() => setModalVisible(false)}>
-                <Ionicons name="arrow-back" size={24} color="#FFF" />
+                <MaterialIcons name="arrow-back" size={24} color="#FFF" />
               </TouchableOpacity>
 
               <View style={styles.modalTitleRow}>
@@ -286,7 +264,7 @@ export default function CategoriesScreen() {
               onChange={handleIconChange}
               renderLeftIcon={() => (
                 <View style={styles.selectedIconBox}>
-                  <Ionicons
+                  <MaterialIcons
                     name={selectedIcon as any}
                     size={20}
                     color={themas.colors.primary}
@@ -294,8 +272,8 @@ export default function CategoriesScreen() {
                 </View>
               )}
               renderRightIcon={() => (
-                <MaterialCommunityIcons
-                  name="chevron-down"
+                <MaterialIcons
+                  name="keyboard-arrow-down"
                   size={22}
                   color={themas.colors.primary}
                 />

@@ -14,7 +14,7 @@ import { themas } from "../../theme/themes";
 
 export default function CategoryDetailsScreen() {
   const { user } = useAuth();
-  const { categoryId, categoryName, categoryIcon, categoryLimit } =
+  const { categoryId, categoryName, categoryIcon, categoryLimit, refresh } =
     useLocalSearchParams();
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -62,7 +62,7 @@ export default function CategoryDetailsScreen() {
       fetchExpenses();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id, category.id]);
+  }, [user?.id, category.id, refresh]);
 
   useFocusEffect(
     useCallback(() => {
