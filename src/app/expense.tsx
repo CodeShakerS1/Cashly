@@ -1,3 +1,4 @@
+import { useAuth } from "@/src/contexts/auth";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -20,6 +21,7 @@ type OpcaoPagamento = {
 };
 
 export default function ExpenseScreen() {
+  const { user } = useAuth();
   const router = useRouter();
   const [text, setText] = useState("");
   const [number, setNumber] = useState("");
@@ -45,9 +47,44 @@ export default function ExpenseScreen() {
     { label: "Moradia", value: 6 },
   ];
 
+  const opcaoMap: Record<string, string> = {
+    PIX: "Pix",
+    Débito: "Debit",
+    Crédito: "Credit",
+    Dinheiro: "Cash",
+  };
+
   function SelectOption(opcao: OpcaoPagamento) {
     setSelectedMethod(opcao);
     setModalVisible(false);
+  }
+
+  async function AddExpense() {
+    try {
+      const response = await fetch("http://localhost:8080/expense", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-type": "application/json",
+        },
+
+        body: JSON.stringify({
+          name: text,
+          amount: parseFloat(number.replace(",", ".")),
+          method: opcaoMap[selectedMethod?.label ?? ""],
+          userId: user?.id,
+          date: new Date().toISOString().split("T")[0],
+        }),
+      });
+
+      const data = await response.json();
+
+      console.log("Resposta:", data);
+
+      router.push("/(tabs)/details");
+    } catch (error) {
+      console.error("Erro ao salvar:", error);
+    }
   }
 
   return (
@@ -152,10 +189,7 @@ export default function ExpenseScreen() {
           </View>
         </Modal>
 
-        <Button
-          titulo="Adicionar Despesa"
-          onPress={() => router.push("/(tabs)/details")}
-        />
+        <Button titulo="Adicionar Despesa" onPress={AddExpense} />
       </View>
     </ScrollView>
   );
