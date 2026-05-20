@@ -1,5 +1,5 @@
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   FlatList,
@@ -7,11 +7,12 @@ import {
   SafeAreaView,
   StyleSheet,
   Text,
- TextInput,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
+import { useAuth } from "../../contexts/auth";
 import { themas } from "../../theme/themes";
 
 const ICON_OPTIONS = [
@@ -22,63 +23,14 @@ const ICON_OPTIONS = [
   { label: "Compras", icon: "bag-handle-outline" },
 ];
 
-const DEFAULT_CATEGORIES = [
-  {
-    id: "1",
-    title: "Alimentação",
-    value: "R$ 120,00",
-    limit: "R$ 150,00",
-    icon: "restaurant-outline",
-    progress: "30%",
-  },
-  {
-    id: "2",
-    title: "Transporte",
-    value: "R$ 250,00",
-    limit: "R$ 150,00",
-    icon: "bus-outline",
-    progress: "60%",
-  },
-  {
-    id: "3",
-    title: "Assinaturas",
-    value: "R$ 60,00",
-    limit: "R$ 150,00",
-    icon: "card-outline",
-    progress: "30%",
-  },
-  {
-    id: "4",
-    title: "Pessoal",
-    value: "R$ 150,00",
-    limit: "R$ 150,00",
-    icon: "bag-handle-outline",
-    progress: "70%",
-  },
-  {
-    id: "5",
-    title: "Saúde",
-    value: "R$ 100,00",
-    limit: "R$ 150,00",
-    icon: "medkit-outline",
-    progress: "40%",
-  },
-  {
-    id: "6",
-    title: "Moradia",
-    value: "R$ 180,00",
-    limit: "R$ 150,00",
-    icon: "home-outline",
-    progress: "45%",
-  },
-];
-
 export default function CategoriesScreen() {
+  const { user } = useAuth();
+
   const [modalVisible, setModalVisible] = useState(false);
   const [categoryName, setCategoryName] = useState("");
   const [limit, setLimit] = useState("");
   const [selectedIcon, setSelectedIcon] = useState("restaurant-outline");
-  const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
+  const [categories, setCategories] = useState<any[]>([]);
   const [dropdownKey, setDropdownKey] = useState(0);
   const [focusedInput, setFocusedInput] = useState<string | null>(null);
 
@@ -86,32 +38,79 @@ export default function CategoriesScreen() {
     setLimit(text.replace(/[^0-9]/g, ""));
   };
 
-  const handleCreateCategory = () => {
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:8080/category/user/${user?.id}`,
+      );
+
+      if (!response.ok) {
+        throw new Error("Erro ao carregar categorias");
+      }
+
+      const data = await response.json();
+
+      const formattedCategories = data.map((item: any) => ({
+        id: String(item.id),
+        title: item.categoryname,
+        value: "R$ 0,00",
+        limit: `R$ ${item.limitAmount},00`,
+        icon: item.icon,
+        progress: "0%",
+      }));
+
+      setCategories(formattedCategories);
+    } catch (error) {
+      console.error("Erro ao buscar categorias:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchCategories();
+    }
+  }, [user]);
+
+  const handleCreateCategory = async () => {
     if (!categoryName.trim() || !limit.trim() || !selectedIcon) {
       Alert.alert("Atenção", "Preencha todas as informações.");
       return;
     }
 
-    const formattedLimit = `R$ ${limit},00`;
+    try {
+      const response = await fetch("http://localhost:8080/category", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          categoryname: categoryName.trim(),
+          icon: selectedIcon,
+          limitAmount: Number(limit),
+          userId: user?.id,
+        }),
+      });
 
-    const newCategory = {
-      id: String(categories.length + 1),
-      title: categoryName,
-      value: "R$ 0,00",
-      limit: formattedLimit,
-      icon: selectedIcon,
-      progress: "0%",
-    };
+      if (!response.ok) {
+        const mensagemErro = await response.text();
+        throw new Error(mensagemErro || "Erro ao criar categoria");
+      }
 
-    setCategories([...categories, newCategory]);
+      setCategoryName("");
+      setLimit("");
+      setSelectedIcon("restaurant-outline");
+      setDropdownKey((prev) => prev + 1);
+      setModalVisible(false);
+      await fetchCategories();
 
-    Alert.alert("Sucesso", "Categoria criada com sucesso!");
-
-    setCategoryName("");
-    setLimit("");
-    setSelectedIcon("restaurant-outline");
-    setDropdownKey((prev) => prev + 1);
-    setModalVisible(false);
+      Alert.alert("Sucesso", "Categoria criada com sucesso!");
+    } catch (error: any) {
+      console.error("Erro ao criar categoria:", error);
+      Alert.alert(
+        "Erro",
+        error.message || "Não foi possível criar a categoria.",
+      );
+    }
   };
 
   const handleIconChange = (item: any) => {
@@ -137,16 +136,12 @@ export default function CategoriesScreen() {
         <View style={styles.rightContent}>
           <Text style={styles.categoryValue}>{item.value}</Text>
 
-          <Text style={styles.categoryLimit}>
-            Limite : {item.limit}
-          </Text>
+          <Text style={styles.categoryLimit}>Limite : {item.limit}</Text>
         </View>
       </View>
 
       <View style={styles.progressBarBackground}>
-        <View
-          style={[styles.progressBar, { width: item.progress as any }]}
-        />
+        <View style={[styles.progressBar, { width: item.progress as any }]} />
       </View>
     </View>
   );
@@ -195,9 +190,7 @@ export default function CategoriesScreen() {
             style={styles.addButton}
             onPress={() => setModalVisible(true)}
           >
-            <Text style={styles.addButtonText}>
-              Adicionar Categoria
-            </Text>
+            <Text style={styles.addButtonText}>Adicionar Categoria</Text>
           </TouchableOpacity>
         }
       />
@@ -224,9 +217,7 @@ export default function CategoriesScreen() {
               <View style={{ width: 24 }} />
             </View>
 
-            <Text style={styles.subTitle}>
-              Nome da Categoria
-            </Text>
+            <Text style={styles.subTitle}>Nome da Categoria</Text>
 
             <TextInput
               style={[
@@ -296,9 +287,7 @@ export default function CategoriesScreen() {
               style={styles.modalButton}
               onPress={handleCreateCategory}
             >
-              <Text style={styles.modalButtonText}>
-                Adicionar Categoria
-              </Text>
+              <Text style={styles.modalButtonText}>Adicionar Categoria</Text>
             </TouchableOpacity>
           </View>
         </View>
