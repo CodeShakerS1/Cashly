@@ -30,6 +30,10 @@ export default function IncomeScreen() {
     null,
   );
 
+  const handleNumber = (text: string) => {
+    setNumber(text.replace(/[^0-9]/g, ""));
+  };
+
   const opcaoMap: Record<string, string> = {
     PIX: "Pix",
     Débito: "Debit",
@@ -97,7 +101,7 @@ export default function IncomeScreen() {
           onChangeText={setText}
           value={text}
           placeholder="Adicionar nome"
-          placeholderTextColor="#5BBF26"
+          placeholderTextColor="#777"
         />
 
         <Text style={styles.subTitle}>Valor da Receita</Text>
@@ -105,10 +109,10 @@ export default function IncomeScreen() {
           <Text style={styles.prefix}>R$</Text>
           <TextInput
             style={styles.inputClean}
-            onChangeText={setNumber}
+            onChangeText={handleNumber}
             value={number}
             placeholder="0,00"
-            placeholderTextColor="#5BBF26"
+            placeholderTextColor="#777"
             keyboardType="numeric"
           />
         </View>
@@ -131,6 +135,11 @@ export default function IncomeScreen() {
           ) : (
             <Text style={styles.placeholderStyle}>Selecione um método</Text>
           )}
+          <MaterialIcons
+            name="keyboard-arrow-down"
+            size={22}
+            color={themas.colors.primary}
+          />
         </TouchableOpacity>
 
         <Modal
@@ -218,7 +227,9 @@ const styles = StyleSheet.create({
     borderRadius: 13,
     paddingHorizontal: 15,
     backgroundColor: themas.colors.bgInputs,
-    color: themas.colors.primary,
+    color: themas.colors.secundary,
+    borderWidth: 1,
+    borderColor: themas.colors.primary,
   },
   containerInput: {
     flexDirection: "row",
@@ -227,6 +238,8 @@ const styles = StyleSheet.create({
     borderRadius: 13,
     paddingHorizontal: 15,
     height: 60,
+    borderWidth: 1,
+    borderColor: themas.colors.primary,
   },
   prefix: {
     fontSize: 16,
@@ -235,29 +248,33 @@ const styles = StyleSheet.create({
   },
   inputClean: {
     flex: 1,
-    color: themas.colors.primary,
+    color: themas.colors.secundary,
     fontSize: 16,
-    height: 60,
   },
   placeholderStyle: {
     fontSize: 16,
-    color: themas.colors.primary,
+    color: "#777",
   },
   methodSelector: {
     backgroundColor: themas.colors.bgInputs,
     height: 60,
     borderRadius: 13,
     paddingHorizontal: 15,
-    justifyContent: "center",
+    justifyContent: "space-between",
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: themas.colors.primary,
   },
   selectedMethodRow: {
     flexDirection: "row",
     alignItems: "center",
   },
   selectedMethodText: {
-    color: themas.colors.primary,
+    color: themas.colors.secundary,
     fontSize: 16,
     marginLeft: 10,
+    fontWeight: "500",
   },
   modalOverlay: {
     flex: 1,

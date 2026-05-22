@@ -90,7 +90,10 @@ export default function Index() {
           <Text style={styles.text}>Olá, {user?.name}</Text>
         </View>
 
-        <TouchableOpacity onPress={() => router.navigate("/notification")}>
+        <TouchableOpacity
+          style={styles.notificationButton}
+          onPress={() => router.navigate("/notification")}
+        >
           <MaterialIcons name="notifications" size={24} color="white" />
         </TouchableOpacity>
       </View>
@@ -149,7 +152,7 @@ export default function Index() {
       </View>
 
       <View style={styles.lista}>
-        {dashboard?.categories.map((item) => (
+        {dashboard?.categories.slice(0, 3).map((item) => (
           <View key={item.categoryName} style={styles.item}>
             <MaterialIcons name={item.icon} size={18} color="#fff" />
             <Text style={styles.nome}>{item.categoryName}</Text>
@@ -198,6 +201,14 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
+  },
+  notificationButton: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: themas.colors.gray,
+    alignItems: "center",
+    justifyContent: "center",
   },
   caixaDinheiro: {
     height: "15%",

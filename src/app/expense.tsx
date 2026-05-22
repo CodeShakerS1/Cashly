@@ -42,6 +42,10 @@ export default function ExpenseScreen() {
   );
   const [categorias, setCategorias] = useState<Categoria[]>([]);
 
+  const handleNumber = (text: string) => {
+    setNumber(text.replace(/[^0-9]/g, ""));
+  };
+
   const opcoes: OpcaoPagamento[] = [
     { label: "PIX", icone: "grid-view" },
     { label: "Débito", icone: "credit-card" },
@@ -132,7 +136,7 @@ export default function ExpenseScreen() {
           onChangeText={setText}
           value={text}
           placeholder="Adicionar Nome"
-          placeholderTextColor="#5BBF26"
+          placeholderTextColor="#777"
         />
 
         <Text style={styles.subTitle}>Valor da Despesa</Text>
@@ -140,10 +144,10 @@ export default function ExpenseScreen() {
           <Text style={styles.prefix}>R$</Text>
           <TextInput
             style={styles.inputClean}
-            onChangeText={setNumber}
+            onChangeText={handleNumber}
             value={number}
             placeholder="0,00"
-            placeholderTextColor="#5BBF26"
+            placeholderTextColor="#777"
             keyboardType="numeric"
           />
         </View>
@@ -154,12 +158,26 @@ export default function ExpenseScreen() {
           labelField="label"
           valueField="value"
           style={styles.dropdown}
+          containerStyle={styles.containerStyle}
+          itemContainerStyle={styles.dropdownItemContainer}
+          activeColor="#1a1a1a"
+          backgroundColor="transparent"
           placeholderStyle={styles.placeholderStyle}
-          selectedTextStyle={styles.selectedTextStyle}
+          selectedTextStyle={styles.dropdownText}
           maxHeight={150}
           value={selectedCategoryId}
+          itemTextStyle={{
+            color: "#FFF",
+            fontSize: 15,
+          }}
           placeholder="Selecione a Categoria"
-          containerStyle={styles.containerStyle}
+          renderRightIcon={() => (
+            <MaterialIcons
+              name="keyboard-arrow-down"
+              size={22}
+              color={themas.colors.primary}
+            />
+          )}
           onChange={(item) => setSelectedCategoryId(item.value)}
         />
 
@@ -182,6 +200,11 @@ export default function ExpenseScreen() {
           ) : (
             <Text style={styles.placeholderStyle}>Selecione um método</Text>
           )}
+          <MaterialIcons
+            name="keyboard-arrow-down"
+            size={22}
+            color={themas.colors.primary}
+          />
         </TouchableOpacity>
 
         <Modal
@@ -249,6 +272,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "600",
   },
+  dropdownItemContainer: {
+    borderRadius: 12,
+    marginHorizontal: 8,
+    marginVertical: 4,
+  },
   subTitle: {
     color: themas.colors.secundary,
     fontSize: 15,
@@ -262,7 +290,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     backgroundColor: themas.colors.bgInputs,
     borderColor: themas.colors.primary,
-    color: themas.colors.primary,
+    color: themas.colors.secundary,
+    borderWidth: 1,
   },
   containerInput: {
     flexDirection: "row",
@@ -271,6 +300,8 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     paddingHorizontal: 15,
     height: 60,
+    borderWidth: 1,
+    borderColor: themas.colors.primary,
   },
   prefix: {
     fontSize: 16,
@@ -279,7 +310,7 @@ const styles = StyleSheet.create({
   },
   inputClean: {
     flex: 1,
-    color: themas.colors.primary,
+    color: themas.colors.secundary,
     fontSize: 16,
   },
   dropdown: {
@@ -293,11 +324,12 @@ const styles = StyleSheet.create({
   },
   placeholderStyle: {
     fontSize: 16,
-    color: themas.colors.primary,
+    color: "#777",
   },
   selectedTextStyle: {
-    fontSize: 16,
-    color: themas.colors.primary,
+    color: "#FFF",
+    fontSize: 15,
+    fontWeight: "500",
   },
   containerStyle: {
     backgroundColor: "#111",
@@ -311,7 +343,16 @@ const styles = StyleSheet.create({
     height: 60,
     borderRadius: 13,
     paddingHorizontal: 15,
-    justifyContent: "center",
+    justifyContent: "space-between",
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: themas.colors.primary,
+  },
+  dropdownText: {
+    color: "#FFF",
+    fontSize: 15,
+    fontWeight: "500",
   },
   selectedMethodRow: {
     flexDirection: "row",
@@ -319,7 +360,8 @@ const styles = StyleSheet.create({
   },
   selectedMethodText: {
     color: "#FFF",
-    fontSize: 15,
+    fontSize: 16,
+    marginLeft: 10,
     fontWeight: "500",
   },
   modalOverlay: {
@@ -327,6 +369,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.8)",
     justifyContent: "center",
     alignItems: "center",
+    flexDirection: "row",
   },
   modalContent: {
     width: "85%",
@@ -350,6 +393,8 @@ const styles = StyleSheet.create({
     paddingVertical: 18,
     borderRadius: 20,
     marginBottom: 12,
+    borderWidth: 1,
+    borderColor: themas.colors.primary,
   },
   optionLabel: {
     color: themas.colors.primary,
