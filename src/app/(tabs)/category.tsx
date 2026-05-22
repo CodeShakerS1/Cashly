@@ -265,7 +265,11 @@ export default function CategoriesScreen() {
         ListHeaderComponent={
           <>
             <View style={styles.header}>
-              <TouchableOpacity style={styles.notificationButton}>
+              <Text style={styles.title}>Categorias</Text>
+              <TouchableOpacity
+                style={styles.notificationButton}
+                onPress={() => router.navigate("/notification")}
+              >
                 <MaterialIcons
                   name="notifications"
                   size={24}
@@ -273,8 +277,6 @@ export default function CategoriesScreen() {
                 />
               </TouchableOpacity>
             </View>
-
-            <Text style={styles.title}>Categorias</Text>
           </>
         }
         renderItem={renderCategoryCard}
@@ -400,12 +402,12 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 30,
   },
-
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 30,
+    position: "relative",
+    justifyContent: "center",
+    marginTop: 10,
   },
 
   greeting: {
@@ -422,14 +424,15 @@ const styles = StyleSheet.create({
     backgroundColor: themas.colors.gray,
     alignItems: "center",
     justifyContent: "center",
+    position: "absolute",
+    right: 0,
   },
 
   title: {
     color: themas.colors.primary,
-    fontSize: 28,
+    fontSize: 25,
     fontWeight: "bold",
     textAlign: "center",
-    marginBottom: 24,
   },
 
   card: {
