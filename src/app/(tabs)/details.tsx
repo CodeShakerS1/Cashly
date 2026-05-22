@@ -1,4 +1,4 @@
-import { Ionicons } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 import { useFocusEffect, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
@@ -16,15 +16,16 @@ export default function CategoryDetailsScreen() {
   const { user } = useAuth();
   const { categoryId, categoryName, categoryIcon, categoryLimit, refresh } =
     useLocalSearchParams();
+
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
   const category = {
     id: String(categoryId),
     title: String(categoryName || "Categoria"),
-    icon: String(categoryIcon || "restaurant-outline"),
+    icon: String(categoryIcon || "restaurant"),
     limitAmount: Number(categoryLimit || 0),
   };
-  console.log("Dados da categoria:", category);
 
   const fetchExpenses = async () => {
     try {
@@ -39,7 +40,6 @@ export default function CategoryDetailsScreen() {
       }
 
       const data = await response.json();
-      console.log("Despesas recebidas:", data);
 
       const formattedExpenses = data.map((item: any) => ({
         id: String(item.id),
@@ -77,15 +77,14 @@ export default function CategoryDetailsScreen() {
     const value = Number(
       item.value.replace("R$", "").replace(".", "").replace(",", ".").trim(),
     );
+
     return sum + value;
   }, 0);
-  console.log("Total gasto calculado:", totalSpent);
 
   const progress =
     category.limitAmount > 0
       ? Math.min((totalSpent / category.limitAmount) * 100, 100)
       : 0;
-  console.log("Percentual de uso do limite:", progress);
 
   const formattedTotal = `R$ ${totalSpent.toFixed(2).replace(".", ",")}`;
 
@@ -97,16 +96,18 @@ export default function CategoryDetailsScreen() {
     <View style={styles.transactionCard}>
       <View style={styles.leftContent}>
         <View style={styles.iconContainer}>
-          <Ionicons
+          <MaterialIcons
             name={category.icon as any}
             size={20}
             color={themas.colors.primary}
           />
+
           <Text style={styles.date}>{item.date}</Text>
         </View>
 
         <View style={styles.textContainer}>
           <Text style={styles.transactionTitle}>{item.title}</Text>
+
           <Text style={styles.transactionType}>{item.type}</Text>
         </View>
       </View>
@@ -115,8 +116,8 @@ export default function CategoryDetailsScreen() {
         <Text style={styles.transactionValue}>{item.value}</Text>
 
         <TouchableOpacity style={styles.moreButton}>
-          <Ionicons
-            name="ellipsis-horizontal"
+          <MaterialIcons
+            name="more-horiz"
             size={18}
             color={themas.colors.primary}
           />
@@ -153,7 +154,7 @@ export default function CategoryDetailsScreen() {
             <View style={styles.header}>
               <View style={styles.headerLeft}>
                 <View style={styles.headerIcon}>
-                  <Ionicons
+                  <MaterialIcons
                     name={category.icon as any}
                     size={28}
                     color="#FFF"
@@ -164,7 +165,7 @@ export default function CategoryDetailsScreen() {
               </View>
 
               <TouchableOpacity style={styles.editButton}>
-                <Ionicons name="pencil" size={18} color="#000" />
+                <MaterialIcons name="edit" size={18} color="#000" />
               </TouchableOpacity>
             </View>
 
