@@ -17,7 +17,12 @@ import {
 import { useAuth } from "@/src/contexts/auth";
 
 type Dashboard = {
-  categories: { categoryName: string; icon: any; total: number }[];
+  categories: {
+    categoryName: string;
+    icon: any;
+    total: number;
+    limitAmount: number;
+  }[];
   weeklyChart: { day: string; total: number }[];
   totalBalance: number;
   weeklyExpensesTotal: number;
@@ -154,9 +159,22 @@ export default function Index() {
       <View style={styles.lista}>
         {dashboard?.categories.slice(0, 3).map((item) => (
           <View key={item.categoryName} style={styles.item}>
-            <MaterialIcons name={item.icon} size={18} color="#fff" />
-            <Text style={styles.nome}>{item.categoryName}</Text>
-            <Text style={styles.valor}>{item.total.toFixed(2)}</Text>
+            <View style={styles.top}>
+              <MaterialIcons name={item.icon} size={18} color="#fff" />
+              <Text style={styles.nome}>{item.categoryName}</Text>
+              <Text style={styles.valor}>{item.total.toFixed(2)}</Text>
+            </View>
+
+            <View style={styles.progressBarBackground}>
+              <View
+                style={[
+                  styles.progressBar,
+                  {
+                    width: `${Math.min((item.total / item.limitAmount) * 100, 100)}%`,
+                  },
+                ]}
+              />
+            </View>
           </View>
         ))}
       </View>
@@ -258,7 +276,7 @@ const styles = StyleSheet.create({
   categoria: {
     alignItems: "flex-start",
     marginLeft: 20,
-    marginTop: -10,
+    marginTop: -15,
   },
   text4: {
     color: themas.colors.secundary,
@@ -266,18 +284,18 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   lista: {
-    padding: 7,
-    gap: 8,
-    margin: 13,
-    marginTop: -1,
+    gap: 7,
+    margin: 16,
   },
   item: {
+    backgroundColor: themas.colors.gray,
+    borderRadius: 10,
+    padding: 3,
+  },
+  top: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: themas.colors.gray,
-    borderRadius: 10,
-    padding: 6,
   },
   nome: {
     color: themas.colors.platinium,
@@ -301,5 +319,19 @@ const styles = StyleSheet.create({
   },
   rota: {
     alignItems: "flex-end",
+  },
+  progressBarBackground: {
+    width: "100%",
+    height: 5,
+    backgroundColor: "#222",
+    borderRadius: 20,
+    marginTop: 5,
+    overflow: "hidden",
+  },
+
+  progressBar: {
+    height: 5,
+    backgroundColor: themas.colors.primary,
+    borderRadius: 20,
   },
 });
