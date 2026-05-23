@@ -98,11 +98,13 @@ export default function ExpenseScreen() {
           userId: user?.id,
           categoryId: selectedCategoryId,
           date: new Date().toISOString().split("T")[0],
+          icon: text,
         }),
       });
 
       const data = await response.json();
       console.log("Resposta:", data);
+
       router.push("/(tabs)/category");
     } catch (error) {
       console.error("Erro ao salvar:", error);
@@ -112,6 +114,7 @@ export default function ExpenseScreen() {
   const categoriasDropdown = categorias.map((cat) => ({
     label: cat.categoryname,
     value: cat.categoryid,
+    icon: cat.icon,
   }));
 
   return (
@@ -166,10 +169,6 @@ export default function ExpenseScreen() {
           selectedTextStyle={styles.dropdownText}
           maxHeight={150}
           value={selectedCategoryId}
-          itemTextStyle={{
-            color: "#FFF",
-            fontSize: 15,
-          }}
           placeholder="Selecione a Categoria"
           renderRightIcon={() => (
             <MaterialIcons
@@ -179,6 +178,33 @@ export default function ExpenseScreen() {
             />
           )}
           onChange={(item) => setSelectedCategoryId(item.value)}
+          renderItem={(item) => (
+            <View style={styles.dropdownBox}>
+              <View style={styles.dropdownIconBox}>
+                <MaterialIcons
+                  name={item.icon as any}
+                  size={18}
+                  color={themas.colors.primary}
+                />
+              </View>
+
+              <Text style={styles.dropdownItemText}>{item.label}</Text>
+            </View>
+          )}
+          renderLeftIcon={() => {
+            const selected = categoriasDropdown.find(
+              (c) => c.value === selectedCategoryId,
+            );
+            return selected ? (
+              <View style={styles.dropdownIconBox}>
+                <MaterialIcons
+                  name={selected.icon as any}
+                  size={18}
+                  color={themas.colors.primary}
+                />
+              </View>
+            ) : null;
+          }}
         />
 
         <Text style={styles.subTitle}>Método</Text>
@@ -321,6 +347,35 @@ const styles = StyleSheet.create({
     height: 58,
     paddingHorizontal: 12,
     justifyContent: "center",
+  },
+  dropdownBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    padding: 12,
+  },
+  selectedIconBox: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: themas.colors.primary + "20",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 12,
+  },
+  dropdownIconBox: {
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    backgroundColor: themas.colors.primary + "15",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 12,
+  },
+  dropdownItemText: {
+    color: "#FFF",
+    fontSize: 15,
+    fontWeight: "500",
   },
   placeholderStyle: {
     fontSize: 16,
