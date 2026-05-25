@@ -105,6 +105,13 @@ export default function Index() {
 
       <View style={styles.caixaDinheiro}>
         <Text style={styles.text}>Saldo total</Text>
+        <TouchableOpacity
+          style={styles.historico}
+          onPress={() => router.push("/record")}
+        >
+          <MaterialIcons name="schedule" size={20} color="white" />
+        </TouchableOpacity>
+
         <Text style={styles.text2}>
           R$ {dashboard?.totalBalance.toFixed(2)}
         </Text>
@@ -333,5 +340,10 @@ const styles = StyleSheet.create({
     height: 5,
     backgroundColor: themas.colors.primary,
     borderRadius: 20,
+  },
+  historico: {
+    position: "absolute",
+    top: 15,
+    right: 15,
   },
 });
