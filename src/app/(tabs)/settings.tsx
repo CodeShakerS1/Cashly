@@ -14,8 +14,6 @@ import {
 } from "react-native";
 import { useAuth } from "../../contexts/auth";
 
-const API_URL = "http://localhost:8080";
-
 async function convertToBase64(uri: string): Promise<string> {
   const base64 = await FileSystem.readAsStringAsync(uri, {
     encoding: FileSystem.EncodingType.Base64,
@@ -25,13 +23,16 @@ async function convertToBase64(uri: string): Promise<string> {
   return `data:${mime};base64,${base64}`;
 }
 
-async function atualizarUsuario(id: string, dados: {
-  name: string;
-  email: string;
-  password: string;
-  photo: string;
-}) {
-  const response = await fetch(`${API_URL}/user/${id}`, {
+async function atualizarUsuario(
+  id: string,
+  dados: {
+    name: string;
+    email: string;
+    photo: string;
+    password?: string;
+  },
+) {
+  const response = await fetch(`http://localhost:8080/user/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(dados),
@@ -67,7 +68,10 @@ export default function SettingsScreen() {
   async function pickImage() {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
-      Alert.alert("Permissão necessária", "Permita o acesso à galeria nas configurações.");
+      Alert.alert(
+        "Permissão necessária",
+        "Permita o acesso à galeria nas configurações.",
+      );
       return;
     }
 
@@ -101,21 +105,41 @@ export default function SettingsScreen() {
       Alert.alert("Aguarde", "A imagem ainda está sendo processada.");
       return;
     }
+
     if (!user) return;
+
+    if (password.trim() !== "" && password.length < 6) {
+      Alert.alert(
+        "Senha inválida",
+        "A senha deve ter pelo menos 6 caracteres.",
+      );
+      return;
+    }
 
     const novaFoto = avatarBase64 ?? user.photo;
 
     try {
       setSaving(true);
 
-      await atualizarUsuario(user.id, {
+      const dadosAtualizacao: any = {
         name,
         email,
-        password: password || "",
+        photo: novaFoto,
+      };
+
+      if (password.trim() !== "") {
+        dadosAtualizacao.password = password;
+      }
+
+      await atualizarUsuario(user.id, dadosAtualizacao);
+
+      saveUser({
+        ...user,
+        name,
+        email,
         photo: novaFoto,
       });
 
-      saveUser({ ...user, name, email, photo: novaFoto });
       Alert.alert("Sucesso", "Perfil atualizado!");
       setPassword("");
     } catch (error: any) {
@@ -143,7 +167,11 @@ export default function SettingsScreen() {
       <Text style={styles.title}>Editar Perfil</Text>
 
       <View style={styles.card}>
-        <TouchableOpacity onPress={pickImage} style={styles.avatarWrapper} disabled={isLoading}>
+        <TouchableOpacity
+          onPress={pickImage}
+          style={styles.avatarWrapper}
+          disabled={isLoading}
+        >
           {currentPhoto ? (
             <Image source={{ uri: currentPhoto }} style={styles.avatarImage} />
           ) : (
