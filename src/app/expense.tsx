@@ -98,14 +98,27 @@ export default function ExpenseScreen() {
           userId: user?.id,
           categoryId: selectedCategoryId,
           date: new Date().toISOString().split("T")[0],
-          icon: text,
         }),
       });
 
-      const data = await response.json();
-      console.log("Resposta:", data);
+      if (!response.ok) {
+        console.error("Erro na requisição:", response.status);
+        return;
+      }
 
-      router.push("/(tabs)/category");
+      const selectedCategory = categorias.find(
+        (cat) => cat.categoryid === selectedCategoryId,
+      );
+
+      router.push({
+        pathname: "/(tabs)/details",
+        params: {
+          categoryId: selectedCategoryId,
+          categoryName: selectedCategory?.categoryname,
+          categoryIcon: selectedCategory?.icon,
+          categoryLimit: selectedCategory?.limitAmount,
+        },
+      });
     } catch (error) {
       console.error("Erro ao salvar:", error);
     }
