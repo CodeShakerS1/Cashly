@@ -3,17 +3,14 @@ import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
-  Dimensions,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import Svg, { Circle } from "react-native-svg";
 import { useAuth } from "../../contexts/auth";
-
-const { width } = Dimensions.get("window");
 
 const MESES = [
   "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
@@ -26,7 +23,6 @@ const CORES_CATEGORIAS = [
   "#00E676", "#F06292",
 ];
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 type DadoMes = {
   despesa: number;
@@ -48,14 +44,12 @@ type Tooltip = {
   x: number;
 };
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatBRL(val: number) {
   if (val >= 1000) return `R$ ${(val / 1000).toFixed(1)}k`;
   return `R$ ${val.toLocaleString("pt-BR", { minimumFractionDigits: 0 })}`;
 }
 
-// ─── DonutChart ───────────────────────────────────────────────────────────────
 
 function DonutChart({
   categorias,
@@ -123,29 +117,29 @@ const donutStyles = StyleSheet.create({
   centerSub: { color: "#666", fontSize: 10, marginTop: 2 },
 });
 
-// ─── BarChart ─────────────────────────────────────────────────────────────────
+
 
 function BarChart({ dadosMensais }: { dadosMensais: DadoMes[] }) {
   const [tooltip, setTooltip] = useState<Tooltip | null>(null);
+  const [chartWidth, setChartWidth] = useState(0);
 
   const maxValor = Math.max(
     ...dadosMensais.flatMap((d) => [d.despesa, d.receita]),
     1,
   );
 
-
-  const chartWidth = width - 64;
-  const barWidth = chartWidth / MESES.length / 2 - 2;
-  const groupWidth = barWidth * 2 + 2;
-  const gap = (chartWidth - groupWidth * 12) / 11;
-
+  const barWidth = chartWidth > 0 ? chartWidth / MESES.length / 2 - 1.5 : 0;
+  const groupWidth = barWidth * 2 + 1.5;
+  const gap = chartWidth > 0 ? (chartWidth - groupWidth * 12) / 11 : 0;
   const BALLOON_WIDTH = 130;
 
   return (
-    <View style={{ position: "relative" }}>
-
-      {/* Balão flutuante */}
-      {tooltip && (() => {
+    <View
+      onLayout={(e) => setChartWidth(e.nativeEvent.layout.width)}
+      style={{ position: "relative" }}
+    >
+      
+      {tooltip && chartWidth > 0 && (() => {
         const rawLeft = tooltip.x - BALLOON_WIDTH / 2;
         const clampedLeft = Math.min(Math.max(rawLeft, 0), chartWidth - BALLOON_WIDTH);
         return (
@@ -153,71 +147,67 @@ function BarChart({ dadosMensais }: { dadosMensais: DadoMes[] }) {
             <Text style={barStyles.balloonMes}>{tooltip.mes}</Text>
             <View style={barStyles.balloonRow}>
               <View style={[barStyles.balloonDot, { backgroundColor: "#5CD338" }]} />
-              <Text style={barStyles.balloonText}>
-                Receita: {formatBRL(tooltip.receita)}
-              </Text>
+              <Text style={barStyles.balloonText}>Receita: {formatBRL(tooltip.receita)}</Text>
             </View>
             <View style={barStyles.balloonRow}>
               <View style={[barStyles.balloonDot, { backgroundColor: "#E53935" }]} />
-              <Text style={barStyles.balloonText}>
-                Despesa: {formatBRL(tooltip.despesa)}
-              </Text>
+              <Text style={barStyles.balloonText}>Despesa: {formatBRL(tooltip.despesa)}</Text>
             </View>
-            {/* Setinha */}
             <View style={barStyles.balloonArrow} />
           </View>
         );
       })()}
 
       <View style={barStyles.container}>
-        <View style={barStyles.barsRow}>
-          {dadosMensais.map((dado, i) => {
-            const hDespesa = (dado.despesa / maxValor) * 75;
-            const hReceita = (dado.receita / maxValor) * 75;
-            const isSelected = tooltip?.mes === MESES[i];
-            // posição X do centro do grupo em relação ao container
-            const xCenter = i * (groupWidth + gap) + groupWidth / 2;
+        {chartWidth > 0 && (
+          <View style={barStyles.barsRow}>
+            {dadosMensais.map((dado, i) => {
+              const hDespesa = (dado.despesa / maxValor) * 75;
+              const hReceita = (dado.receita / maxValor) * 75;
+              const isSelected = tooltip?.mes === MESES[i];
+              const xCenter = i * (groupWidth + gap) + groupWidth / 2;
 
-            return (
-              <TouchableOpacity
-                key={i}
-                style={[barStyles.group, { width: groupWidth }]}
-                onLongPress={() =>
-                  setTooltip({
-                    mes: MESES[i],
-                    despesa: dado.despesa,
-                    receita: dado.receita,
-                    x: xCenter,
-                  })
-                }
-                onPressOut={() => setTooltip(null)}
-                delayLongPress={150}
-                activeOpacity={0.8}
-              >
-                <View
-                  style={[
-                    barStyles.bar,
-                    {
-                      height: hDespesa || 2,
-                      backgroundColor: isSelected ? "#FF6B6B" : "#E53935",
-                      width: barWidth,
-                    },
-                  ]}
-                />
-                <View
-                  style={[
-                    barStyles.bar,
-                    {
-                      height: hReceita || 2,
-                      backgroundColor: isSelected ? "#8EF55A" : "#5CD338",
-                      width: barWidth,
-                    },
-                  ]}
-                />
-              </TouchableOpacity>
-            );
-          })}
-        </View>
+              return (
+                <TouchableOpacity
+                  key={i}
+                  style={[barStyles.group, { width: groupWidth }]}
+                  onLongPress={() =>
+                    setTooltip({
+                      mes: MESES[i],
+                      despesa: dado.despesa,
+                      receita: dado.receita,
+                      x: xCenter,
+                    })
+                  }
+                  onPressOut={() => setTooltip(null)}
+                  delayLongPress={150}
+                  activeOpacity={0.8}
+                >
+                  <View
+                    style={[
+                      barStyles.bar,
+                      {
+                        height: hDespesa || 2,
+                        backgroundColor: isSelected ? "#FF6B6B" : "#E53935",
+                        width: barWidth,
+                      },
+                    ]}
+                  />
+                  <View
+                    style={[
+                      barStyles.bar,
+                      {
+                        height: hReceita || 2,
+                        backgroundColor: isSelected ? "#8EF55A" : "#5CD338",
+                        width: barWidth,
+                      },
+                    ]}
+                  />
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        )}
 
         <View style={barStyles.labelsRow}>
           {MESES.map((m) => (
@@ -254,7 +244,6 @@ const barStyles = StyleSheet.create({
   },
   mesLabel: { color: "#444", fontSize: 8, textAlign: "center", flex: 1 },
 
-  // Balão
   balloon: {
     position: "absolute",
     top: -88,
@@ -271,18 +260,8 @@ const barStyles = StyleSheet.create({
     shadowOffset: { width: 0, height: 3 },
     elevation: 10,
   },
-  balloonMes: {
-    color: "#FFF",
-    fontSize: 11,
-    fontWeight: "700",
-    marginBottom: 5,
-  },
-  balloonRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-    marginTop: 3,
-  },
+  balloonMes: { color: "#FFF", fontSize: 11, fontWeight: "700", marginBottom: 5 },
+  balloonRow: { flexDirection: "row", alignItems: "center", gap: 5, marginTop: 3 },
   balloonDot: { width: 7, height: 7, borderRadius: 4 },
   balloonText: { color: "#CCC", fontSize: 11 },
   balloonArrow: {
@@ -302,7 +281,7 @@ const barStyles = StyleSheet.create({
   },
 });
 
-// ─── Screen ───────────────────────────────────────────────────────────────────
+
 
 export default function RelatoryScreen() {
   const { user } = useAuth();
@@ -320,7 +299,7 @@ export default function RelatoryScreen() {
     try {
       setLoading(true);
 
-      // 1. Busca receitas e despesas em paralelo
+      
       const [incomeRes, expenseRes] = await Promise.all([
         fetch(`http://localhost:8080/income/user/${user.id}`),
         fetch(`http://localhost:8080/expense/user/${user.id}`),
@@ -329,7 +308,7 @@ export default function RelatoryScreen() {
       const incomes: any[] = incomeRes.ok ? await incomeRes.json() : [];
       const expenses: any[] = expenseRes.ok ? await expenseRes.json() : [];
 
-      // 2. Monta dados mensais
+      
       const dados: DadoMes[] = Array.from({ length: 12 }, () => ({
         despesa: 0,
         receita: 0,
@@ -352,11 +331,11 @@ export default function RelatoryScreen() {
       setTotalReceita(tR);
       setTotalDespesa(tD);
 
-      // 3. Busca categorias do usuário
+      
       const catRes = await fetch(`http://localhost:8080/category/user/${user.id}`);
       const catData: any[] = catRes.ok ? await catRes.json() : [];
 
-      // 4. Para cada categoria, busca total gasto
+      
       const catComValores = await Promise.all(
         catData.map(async (item: any, i: number) => {
           let totalGasto = 0;
@@ -369,7 +348,7 @@ export default function RelatoryScreen() {
               totalGasto = expCat.reduce((acc, e) => acc + Number(e.amount), 0);
             }
           } catch {
-            // sem despesas nessa categoria
+            
           }
           return {
             id: String(item.categoryid),
@@ -381,7 +360,7 @@ export default function RelatoryScreen() {
         }),
       );
 
-      // 5. Calcula percentuais e filtra vazios
+      
       const totalCats = catComValores.reduce((s, c) => s + c.valor, 0) || 1;
       const catsFinal: CategoriaDonut[] = catComValores
         .filter((c) => c.valor > 0)
@@ -411,7 +390,7 @@ export default function RelatoryScreen() {
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
-        {/* Header */}
+      
         <View style={styles.header}>
           <Text style={styles.title}>Relatórios</Text>
           <TouchableOpacity style={styles.bell}>
@@ -424,7 +403,7 @@ export default function RelatoryScreen() {
           <ActivityIndicator color="#5CD338" size="large" style={{ marginTop: 80 }} />
         ) : (
           <>
-            {/* Card Donut */}
+          
             <View style={styles.card}>
               <Text style={styles.cardTitle}>MENSAL POR CATEGORIA</Text>
               <View style={styles.donutRow}>
@@ -445,7 +424,7 @@ export default function RelatoryScreen() {
               )}
             </View>
 
-            {/* Cards resumo */}
+            
             <View style={styles.summaryRow}>
               <View style={styles.sumCard}>
                 <Text style={styles.sumLabel}>RECEITA</Text>
@@ -457,7 +436,7 @@ export default function RelatoryScreen() {
               </View>
             </View>
 
-            {/* Card Barras */}
+          
             <View style={styles.card}>
               <Text style={styles.cardTitle}>RECEITAS VS. DESPESAS</Text>
               <View style={styles.barLegend}>
@@ -473,7 +452,7 @@ export default function RelatoryScreen() {
               <BarChart dadosMensais={dadosMensais} />
             </View>
 
-            {/* Botão Histórico */}
+          
             <TouchableOpacity
               style={styles.btnHistorico}
               onPress={() => router.push("/details")}
