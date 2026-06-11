@@ -1,3 +1,4 @@
+import { LoadingCoin } from "@/src/components/login/login";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useFocusEffect, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
@@ -5,6 +6,7 @@ import {
   Alert,
   FlatList,
   Modal,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -13,6 +15,7 @@ import {
 } from "react-native";
 import { useAuth } from "../../contexts/auth";
 import { themas } from "../../theme/themes";
+
 const ICON_OPTIONS = [
   "restaurant",
   "directions-bus",
@@ -163,7 +166,7 @@ export default function CategoryDetailsScreen() {
             categoryid: Number(categoryData.id),
             categoryname: editName,
             icon: editIcon,
-            limitAmount: Number(editLimit),
+            limitAmount: Number(editLimit.replace(",", ".")),
             userId: Number(user?.id),
           }),
         },
@@ -177,7 +180,7 @@ export default function CategoryDetailsScreen() {
         ...prev,
         title: editName,
         icon: editIcon,
-        limitAmount: Number(editLimit),
+        limitAmount: Number(editLimit.replace(",", ".")),
       }));
 
       Alert.alert("Sucesso", "Categoria atualizada com sucesso!");
@@ -193,6 +196,17 @@ export default function CategoryDetailsScreen() {
       setSaving(false);
     }
   };
+
+  const handleLimitChange = (text: string) => {
+    const formatted = text.replace(/[^0-9,]/g, "");
+    setEditLimit(formatted);
+  };
+
+  const handleExpenseAmountChange = (text: string) => {
+    const formatted = text.replace(/[^0-9,]/g, "");
+    setEditExpenseAmount(formatted);
+  };
+
   const openActionModal = (item: any) => {
     setSelectedTransaction(item);
     setActionModalVisible(true);
@@ -239,7 +253,7 @@ export default function CategoryDetailsScreen() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             name: editExpenseName,
-            amount: Number(editExpenseAmount),
+            amount: Number(editExpenseAmount.replace(",", ".")),
             method: editExpenseMethod,
             date: selectedTransaction.date,
             userId: selectedTransaction.userId,
@@ -331,19 +345,7 @@ export default function CategoryDetailsScreen() {
   );
 
   if (loading) {
-    return (
-      <View style={[styles.container, { flex: 1 }]}>
-        <Text
-          style={{
-            color: "#FFF",
-            textAlign: "center",
-            marginTop: 50,
-          }}
-        >
-          Carregando...
-        </Text>
-      </View>
-    );
+    return <LoadingCoin />;
   }
 
   return (
@@ -429,28 +431,33 @@ export default function CategoryDetailsScreen() {
 
             <Text style={styles.iconLabel}>Escolha um ícone</Text>
 
-            <View style={styles.iconGrid}>
-              {ICON_OPTIONS.map((icon) => (
-                <TouchableOpacity
-                  key={icon}
-                  onPress={() => setEditIcon(icon)}
-                  style={[
-                    styles.iconOption,
-                    editIcon === icon && styles.iconOptionSelected,
-                  ]}
-                >
-                  <MaterialIcons
-                    name={icon as any}
-                    size={24}
-                    color={editIcon === icon ? "#000" : themas.colors.primary}
-                  />
-                </TouchableOpacity>
-              ))}
-            </View>
+            <ScrollView
+              style={{ maxHeight: 200 }}
+              showsVerticalScrollIndicator={false}
+            >
+              <View style={styles.iconGrid}>
+                {ICON_OPTIONS.map((icon) => (
+                  <TouchableOpacity
+                    key={icon}
+                    onPress={() => setEditIcon(icon)}
+                    style={[
+                      styles.iconOption,
+                      editIcon === icon && styles.iconOptionSelected,
+                    ]}
+                  >
+                    <MaterialIcons
+                      name={icon as any}
+                      size={24}
+                      color={editIcon === icon ? "#000" : themas.colors.primary}
+                    />
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </ScrollView>
 
             <TextInput
               value={editLimit}
-              onChangeText={setEditLimit}
+              onChangeText={handleLimitChange}
               keyboardType="numeric"
               placeholder="Limite"
               placeholderTextColor="#666"
@@ -476,19 +483,14 @@ export default function CategoryDetailsScreen() {
           </View>
         </View>
       </Modal>
-      {actionModalVisible && (
-        <View
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(0,0,0,0.7)",
-            justifyContent: "flex-end",
-            zIndex: 999,
-          }}
-        >
+
+      <Modal
+        visible={actionModalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setActionModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <View style={styles.modalHandle} />
             <Text style={styles.modalTitle}>{selectedTransaction?.title}</Text>
@@ -518,7 +520,7 @@ export default function CategoryDetailsScreen() {
             </TouchableOpacity>
           </View>
         </View>
-      )}
+      </Modal>
 
       {editModalVisible && (
         <View
@@ -547,7 +549,7 @@ export default function CategoryDetailsScreen() {
 
             <TextInput
               value={editExpenseAmount}
-              onChangeText={setEditExpenseAmount}
+              onChangeText={handleExpenseAmountChange}
               placeholder="Valor"
               placeholderTextColor="#666"
               keyboardType="numeric"
@@ -823,14 +825,15 @@ const styles = StyleSheet.create({
   },
 
   input: {
-    backgroundColor: "#151515",
-    borderWidth: 1,
-    borderColor: "#222",
+    backgroundColor: themas.colors.bgInputs,
+    borderRadius: 18,
+    height: 58,
+    paddingHorizontal: 18,
+    marginBottom: 3,
     color: "#FFF",
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    height: 56,
-    marginBottom: 14,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: themas.colors.primary,
   },
 
   saveButton: {
@@ -843,7 +846,7 @@ const styles = StyleSheet.create({
   },
 
   saveButtonText: {
-    color: "#000",
+    color: "#fff",
     fontWeight: "700",
     fontSize: 16,
   },

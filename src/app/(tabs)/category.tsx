@@ -1,3 +1,4 @@
+import { LoadingCoin } from "@/src/components/login/login";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
 import React, { useCallback, useState } from "react";
@@ -78,17 +79,19 @@ export default function CategoriesScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [categoryName, setCategoryName] = useState("");
   const [limit, setLimit] = useState("");
+  const [loading, setLoading] = useState(true);
   const [selectedIcon, setSelectedIcon] = useState("restaurant");
   const [categories, setCategories] = useState<any[]>([]);
   const [dropdownKey, setDropdownKey] = useState(0);
   const [focusedInput, setFocusedInput] = useState<string | null>(null);
 
   const handleLimit = (text: string) => {
-    setLimit(text.replace(/[^0-9]/g, ""));
+    setLimit(text.replace(/[^0-9,]/g, ""));
   };
 
   const fetchCategories = async () => {
     try {
+      setLoading(true);
       const response = await fetch(
         `http://localhost:8080/category/user/${user?.id}`,
       );
@@ -140,6 +143,8 @@ export default function CategoriesScreen() {
       setCategories(formattedCategories);
     } catch (error) {
       console.error("Erro ao buscar categorias:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -254,6 +259,10 @@ export default function CategoriesScreen() {
       <Text style={styles.dropdownItemText}>{item.label}</Text>
     </View>
   );
+
+  if (loading) {
+    return <LoadingCoin />;
+  }
 
   return (
     <SafeAreaView style={styles.container}>

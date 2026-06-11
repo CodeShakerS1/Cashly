@@ -15,12 +15,12 @@ import { Dropdown } from "react-native-element-dropdown";
 import { Button } from "../components/Button";
 import { themas } from "../theme/themes";
 
-type OpcaoPagamento = {
-  icone: keyof typeof MaterialIcons.glyphMap;
+type PaymentOption = {
+  icon: keyof typeof MaterialIcons.glyphMap;
   label: string;
 };
 
-type Categoria = {
+type Category = {
   categoryid: number;
   categoryname: string;
   icon: string;
@@ -37,23 +37,26 @@ export default function ExpenseScreen() {
     null,
   );
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedMethod, setSelectedMethod] = useState<OpcaoPagamento | null>(
+  const [selectedMethod, setSelectedMethod] = useState<PaymentOption | null>(
     null,
   );
-  const [categorias, setCategorias] = useState<Categoria[]>([]);
+  const [categories, setcategories] = useState<Category[]>([]);
+  const [numberError, setNumberError] = useState("");
 
   const handleNumber = (text: string) => {
-    setNumber(text.replace(/[^0-9]/g, ""));
+    setNumber(text.replace(/[^0-9,]/g, ""));
+
+    setNumberError("");
   };
 
-  const opcoes: OpcaoPagamento[] = [
-    { label: "PIX", icone: "grid-view" },
-    { label: "Débito", icone: "credit-card" },
-    { label: "Crédito", icone: "credit-card" },
-    { label: "Dinheiro", icone: "paid" },
+  const paymentOptions: PaymentOption[] = [
+    { label: "PIX", icon: "grid-view" },
+    { label: "Débito", icon: "credit-card" },
+    { label: "Crédito", icon: "credit-card" },
+    { label: "Dinheiro", icon: "paid" },
   ];
 
-  const opcaoMap: Record<string, string> = {
+  const paymentMethodMap: Record<string, string> = {
     PIX: "Pix",
     Débito: "Debit",
     Crédito: "Credit",
@@ -61,29 +64,42 @@ export default function ExpenseScreen() {
   };
 
   useEffect(() => {
-    async function fetchCategorias() {
+    async function fetchCategories() {
       try {
         const response = await fetch(
           `http://localhost:8080/category/user/${user?.id}`,
         );
-        const data: Categoria[] = await response.json();
-        setCategorias(data);
+        const data: Category[] = await response.json();
+        setcategories(data);
       } catch (error) {
         console.error("Erro ao buscar categorias:", error);
       }
     }
 
     if (user?.id) {
-      fetchCategorias();
+      fetchCategories();
     }
   }, [user?.id]);
 
-  function SelectOption(opcao: OpcaoPagamento) {
+  function selectOption(opcao: PaymentOption) {
     setSelectedMethod(opcao);
     setModalVisible(false);
   }
 
   async function AddExpense() {
+    const parsed = parseFloat(number.replace(",", "."));
+
+    if (!number || isNaN(parsed)) {
+      setNumberError("Digite um valor válido");
+      return;
+    }
+
+    if (parsed > 99999999) {
+      setNumberError("Valor muito alto");
+      return;
+    }
+
+    setNumberError("");
     try {
       const response = await fetch("http://localhost:8080/expense", {
         method: "POST",
@@ -93,8 +109,8 @@ export default function ExpenseScreen() {
         },
         body: JSON.stringify({
           name: text,
-          amount: parseFloat(number.replace(",", ".")),
-          method: opcaoMap[selectedMethod?.label ?? ""],
+          amount: parsed,
+          method: paymentMethodMap[selectedMethod?.label ?? ""],
           userId: user?.id,
           categoryId: selectedCategoryId,
           date: new Date().toISOString().split("T")[0],
@@ -103,10 +119,11 @@ export default function ExpenseScreen() {
 
       if (!response.ok) {
         console.error("Erro na requisição:", response.status);
+        setNumberError("Erro ao salvar, tente novamente");
         return;
       }
 
-      const selectedCategory = categorias.find(
+      const selectedCategory = categories.find(
         (cat) => cat.categoryid === selectedCategoryId,
       );
 
@@ -124,7 +141,7 @@ export default function ExpenseScreen() {
     }
   }
 
-  const categoriasDropdown = categorias.map((cat) => ({
+  const categoriesDropdown = categories.map((cat) => ({
     label: cat.categoryname,
     value: cat.categoryid,
     icon: cat.icon,
@@ -141,12 +158,12 @@ export default function ExpenseScreen() {
             <MaterialIcons name="arrow-back" size={24} color="white" />
           </TouchableOpacity>
           <View style={styles.textContainer}>
-            <Text style={styles.textWhite}>Nova </Text>
-            <Text style={styles.textGreen}>Despesa</Text>
+            <Text style={styles.headerText}>Nova </Text>
+            <Text style={styles.highlightText}>Despesa</Text>
           </View>
         </View>
 
-        <Text style={styles.subTitle}>Nome da Despesa</Text>
+        <Text style={styles.sectionTitle}>Nome da Despesa</Text>
         <TextInput
           style={styles.input}
           onChangeText={setText}
@@ -155,8 +172,13 @@ export default function ExpenseScreen() {
           placeholderTextColor="#777"
         />
 
-        <Text style={styles.subTitle}>Valor da Despesa</Text>
-        <View style={styles.containerInput}>
+        <Text style={styles.sectionTitle}>Valor da Despesa</Text>
+        <View
+          style={[
+            styles.containerInput,
+            numberError ? { borderColor: "red" } : null,
+          ]}
+        >
           <Text style={styles.prefix}>R$</Text>
           <TextInput
             style={styles.inputClean}
@@ -167,10 +189,15 @@ export default function ExpenseScreen() {
             keyboardType="numeric"
           />
         </View>
+        {numberError ? (
+          <Text style={{ color: "red", fontSize: 12, marginTop: 4 }}>
+            {numberError}
+          </Text>
+        ) : null}
 
-        <Text style={styles.subTitle}>Categoria</Text>
+        <Text style={styles.sectionTitle}>Categoria</Text>
         <Dropdown
-          data={categoriasDropdown}
+          data={categoriesDropdown}
           labelField="label"
           valueField="value"
           style={styles.dropdown}
@@ -205,7 +232,7 @@ export default function ExpenseScreen() {
             </View>
           )}
           renderLeftIcon={() => {
-            const selected = categoriasDropdown.find(
+            const selected = categoriesDropdown.find(
               (c) => c.value === selectedCategoryId,
             );
             return selected ? (
@@ -220,7 +247,7 @@ export default function ExpenseScreen() {
           }}
         />
 
-        <Text style={styles.subTitle}>Método</Text>
+        <Text style={styles.sectionTitle}>Método</Text>
         <TouchableOpacity
           style={styles.methodSelector}
           onPress={() => setModalVisible(true)}
@@ -228,7 +255,7 @@ export default function ExpenseScreen() {
           {selectedMethod ? (
             <View style={styles.selectedMethodRow}>
               <MaterialIcons
-                name={selectedMethod.icone}
+                name={selectedMethod.icon}
                 size={24}
                 color={themas.colors.primary}
               />
@@ -256,13 +283,13 @@ export default function ExpenseScreen() {
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>Selecione um método:</Text>
 
-              {opcoes.map((item, index) => (
+              {paymentOptions.map((item, index) => (
                 <TouchableOpacity
                   key={index}
                   style={styles.optionCard}
-                  onPress={() => SelectOption(item)}
+                  onPress={() => selectOption(item)}
                 >
-                  <MaterialIcons name={item.icone} size={24} color="#5BBF26" />
+                  <MaterialIcons name={item.icon} size={24} color="#5BBF26" />
                   <Text style={styles.optionLabel}>{item.label}</Text>
                 </TouchableOpacity>
               ))}
@@ -301,12 +328,12 @@ const styles = StyleSheet.create({
   textContainer: {
     flexDirection: "row",
   },
-  textWhite: {
+  headerText: {
     color: themas.colors.secundary,
     fontSize: 18,
     fontWeight: "400",
   },
-  textGreen: {
+  highlightText: {
     color: themas.colors.primary,
     fontSize: 18,
     fontWeight: "600",
@@ -316,7 +343,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
     marginVertical: 4,
   },
-  subTitle: {
+  sectionTitle: {
     color: themas.colors.secundary,
     fontSize: 15,
     fontWeight: "600",

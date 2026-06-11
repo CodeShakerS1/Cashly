@@ -5,16 +5,11 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useFocusEffect, useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
 
-import {
-  ActivityIndicator,
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import { useAuth } from "@/src/contexts/auth";
+
+import { LoadingCoin } from "@/src/components/login/login";
 
 type Dashboard = {
   categories: {
@@ -31,7 +26,7 @@ type Dashboard = {
 export default function Index() {
   const router = useRouter();
 
-  const [periodo, setPeriodo] = useState("Semana Atual");
+  const [selectedPeriod, setSelectedPeriod] = useState("Semana Atual");
   const [week, setWeek] = useState<"current" | "previous">("current");
 
   const [erro, setErro] = useState("");
@@ -80,7 +75,7 @@ export default function Index() {
   );
 
   if (loading) {
-    return <ActivityIndicator size="large" />;
+    return <LoadingCoin />;
   }
 
   if (erro) {
@@ -90,9 +85,9 @@ export default function Index() {
   return (
     <View style={styles.screen}>
       <View style={styles.container}>
-        <View style={styles.box1}>
-          <Image source={{ uri: user?.photo }} style={styles.icone} />
-          <Text style={styles.text}>Olá, {user?.name}</Text>
+        <View style={styles.profileContainer}>
+          <Image source={{ uri: user?.photo }} style={styles.icon} />
+          <Text style={styles.balanceLabel}>Olá, {user?.name}</Text>
         </View>
 
         <TouchableOpacity
@@ -103,45 +98,45 @@ export default function Index() {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.caixaDinheiro}>
-        <Text style={styles.text}>Saldo total</Text>
+      <View style={styles.balanceCard}>
+        <Text style={styles.balanceLabel}>Saldo total</Text>
         <TouchableOpacity
-          style={styles.historico}
+          style={styles.historyButton}
           onPress={() => router.push("/record")}
         >
           <MaterialIcons name="schedule" size={20} color="white" />
         </TouchableOpacity>
 
-        <Text style={styles.text2}>
+        <Text style={styles.balanceAmount}>
           R$ {dashboard?.totalBalance.toFixed(2)}
         </Text>
       </View>
 
-      <View style={styles.relacao}>
+      <View style={styles.statusSelector}>
         <TouchableOpacity
           style={[
-            styles.button,
-            periodo === "Semana Passada" && styles.buttonAtivo,
+            styles.statusButton,
+            selectedPeriod === "Semana Passada" && styles.statusButtonActive,
           ]}
           onPress={() => {
-            setPeriodo("Semana Passada");
+            setSelectedPeriod("Semana Passada");
             setWeek("previous");
           }}
         >
-          <Text style={styles.text3}>Semana Passada</Text>
+          <Text style={styles.periodSelectorText}>Semana Passada</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={[
-            styles.button,
-            periodo === "Semana Atual" && styles.buttonAtivo,
+            styles.statusButton,
+            selectedPeriod === "Semana Atual" && styles.statusButtonActive,
           ]}
           onPress={() => {
-            setPeriodo("Semana Atual");
+            setSelectedPeriod("Semana Atual");
             setWeek("current");
           }}
         >
-          <Text style={styles.text3}>Semana Atual</Text>
+          <Text style={styles.periodSelectorText}>Semana Atual</Text>
         </TouchableOpacity>
       </View>
 
@@ -159,23 +154,23 @@ export default function Index() {
         </View>
       </View>
 
-      <View style={styles.categoria}>
-        <Text style={styles.text4}>Categorias</Text>
+      <View style={styles.categorySection}>
+        <Text style={styles.sectionTitle}>Categorias</Text>
       </View>
 
-      <View style={styles.lista}>
+      <View style={styles.categoryList}>
         {dashboard?.categories.slice(0, 3).map((item) => (
-          <View key={item.categoryName} style={styles.item}>
-            <View style={styles.top}>
+          <View key={item.categoryName} style={styles.categoryCard}>
+            <View style={styles.categoryHeader}>
               <MaterialIcons name={item.icon} size={18} color="#fff" />
-              <Text style={styles.nome}>{item.categoryName}</Text>
-              <Text style={styles.valor}>{item.total.toFixed(2)}</Text>
+              <Text style={styles.categoryName}>{item.categoryName}</Text>
+              <Text style={styles.categoryValue}>{item.total.toFixed(2)}</Text>
             </View>
 
-            <View style={styles.progressBarBackground}>
+            <View style={styles.progressContainer}>
               <View
                 style={[
-                  styles.progressBar,
+                  styles.progressFill,
                   {
                     width: `${Math.min((item.total / item.limitAmount) * 100, 100)}%`,
                   },
@@ -186,9 +181,9 @@ export default function Index() {
         ))}
       </View>
 
-      <View style={styles.rota}>
+      <View style={styles.viewAllContainer}>
         <TouchableOpacity onPress={() => router.navigate("/(tabs)/category")}>
-          <Text style={styles.text5}>Ver Todas</Text>
+          <Text style={styles.viewAllText}>Ver Todas</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -208,21 +203,21 @@ const styles = StyleSheet.create({
     padding: 6,
     margin: 20,
   },
-  box1: {
+  profileContainer: {
     gap: 8,
     flexDirection: "row",
     alignItems: "center",
   },
-  text: {
+  balanceLabel: {
     color: themas.colors.secundary,
     fontSize: 18,
   },
-  text2: {
+  balanceAmount: {
     color: themas.colors.secundary,
     fontSize: 25,
     fontWeight: "bold",
   },
-  icone: {
+  icon: {
     width: 40,
     height: 40,
     borderRadius: 20,
@@ -235,7 +230,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  caixaDinheiro: {
+  balanceCard: {
     height: "15%",
     gap: 5,
     backgroundColor: themas.colors.primary,
@@ -244,7 +239,7 @@ const styles = StyleSheet.create({
     margin: 20,
     marginTop: 0,
   },
-  relacao: {
+  statusSelector: {
     borderRadius: 15,
     overflow: "hidden",
     backgroundColor: themas.colors.gray,
@@ -254,15 +249,15 @@ const styles = StyleSheet.create({
     padding: 3,
     marginLeft: 20,
   },
-  text3: {
+  periodSelectorText: {
     color: themas.colors.secundary,
     fontSize: 15,
   },
-  button: {
+  statusButton: {
     paddingVertical: 8,
     paddingHorizontal: 17,
   },
-  buttonAtivo: {
+  statusButtonActive: {
     backgroundColor: themas.colors.primary,
   },
   chart: {
@@ -280,54 +275,54 @@ const styles = StyleSheet.create({
     paddingRight: 10,
     overflow: "hidden",
   },
-  categoria: {
+  categorySection: {
     alignItems: "flex-start",
     marginLeft: 20,
     marginTop: -15,
   },
-  text4: {
+  sectionTitle: {
     color: themas.colors.secundary,
     fontSize: 15,
     fontWeight: "bold",
   },
-  lista: {
+  categoryList: {
     gap: 7,
     margin: 16,
   },
-  item: {
+  categoryCard: {
     backgroundColor: themas.colors.gray,
     borderRadius: 10,
     padding: 3,
   },
-  top: {
+  categoryHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
-  nome: {
+  categoryName: {
     color: themas.colors.platinium,
     flex: 1,
     textAlign: "center",
     marginLeft: 10,
     alignItems: "center",
   },
-  valor: {
+  categoryValue: {
     color: themas.colors.platinium,
     fontWeight: "bold",
     textAlign: "right",
     minWidth: 40,
   },
-  text5: {
+  viewAllText: {
     color: themas.colors.platinium,
     fontSize: 12,
-    fontWeight: "medium",
+    fontWeight: "500",
     marginTop: -16,
     marginRight: 22,
   },
-  rota: {
+  viewAllContainer: {
     alignItems: "flex-end",
   },
-  progressBarBackground: {
+  progressContainer: {
     width: "100%",
     height: 5,
     backgroundColor: "#222",
@@ -336,12 +331,12 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
 
-  progressBar: {
+  progressFill: {
     height: 5,
     backgroundColor: themas.colors.primary,
     borderRadius: 20,
   },
-  historico: {
+  historyButton: {
     position: "absolute",
     top: 15,
     right: 15,
