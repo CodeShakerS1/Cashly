@@ -1,19 +1,14 @@
 import { themas } from "@/src/theme/themes";
 import { useCallback, useState } from "react";
-import {
-  ActivityIndicator,
-  FlatList,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { FlatList, StyleSheet, Text, View } from "react-native";
 
+import { LoadingCoin } from "@/src/components/login/login";
 import { useAuth } from "@/src/contexts/auth";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useFocusEffect } from "expo-router";
 import { Dropdown } from "react-native-element-dropdown";
 
-type Historico = {
+type Record = {
   id: number;
   description: string;
   method: string;
@@ -26,8 +21,8 @@ type Historico = {
 export default function RecordScreen() {
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
-  const [record, setRecord] = useState<Historico[]>([]);
-  const [filtro, setFiltro] = useState<"todos" | "receita" | "despesa">(
+  const [record, setRecord] = useState<Record[]>([]);
+  const [filter, setFilter] = useState<"todos" | "receita" | "despesa">(
     "todos",
   );
 
@@ -71,26 +66,26 @@ export default function RecordScreen() {
   );
 
   if (loading) {
-    return <ActivityIndicator size="large" />;
+    return <LoadingCoin />;
   }
 
   if (erro) {
     return <Text>Erro: {erro}</Text>;
   }
 
-  const opcoesFiltro = [
+  const filterOptions = [
     { label: "Todos", value: "todos" },
     { label: "Receita", value: "receita" },
     { label: "Despesa", value: "despesa" },
   ];
 
-  const listaFiltrada = record.filter((t) => {
-    if (filtro === "todos") return true;
-    if (filtro === "despesa") return !!t.expenseId;
-    if (filtro === "receita") return !!t.incomeId;
+  const filteredRecords = record.filter((t) => {
+    if (filter === "todos") return true;
+    if (filter === "despesa") return !!t.expenseId;
+    if (filter === "receita") return !!t.incomeId;
   });
 
-  const formatarData = (data: string) => {
+  const formatDate = (data: string) => {
     const [ano, mes, dia] = data.split("-");
     return `${dia}/${mes}/${ano}`;
   };
@@ -103,7 +98,7 @@ export default function RecordScreen() {
     date,
     expenseId,
     incomeId,
-  }: Historico) => (
+  }: Record) => (
     <View style={styles.card}>
       <View style={styles.cardBetween}>
         <Text style={styles.description}>{description}</Text>
@@ -113,7 +108,7 @@ export default function RecordScreen() {
       </View>
       <View style={styles.cardBottom}>
         <Text style={styles.row}>{method} | </Text>
-        <Text style={styles.row}>{formatarData(String(date))}</Text>
+        <Text style={styles.row}>{formatDate(String(date))}</Text>
       </View>
     </View>
   );
@@ -124,14 +119,14 @@ export default function RecordScreen() {
         <Text style={styles.text1}>Histórico</Text>
 
         <Dropdown
-          style={styles.filtro}
-          data={opcoesFiltro}
+          style={styles.filter}
+          data={filterOptions}
           labelField="label"
           valueField="value"
-          value={filtro}
+          value={filter}
           containerStyle={styles.containerStyle}
           itemContainerStyle={styles.dropdownItemContainer}
-          onChange={(item) => setFiltro(item.value)}
+          onChange={(item) => setFilter(item.value)}
           activeColor="#1a1a1a"
           placeholder="Filtrar Por"
           placeholderStyle={styles.placeholderStyle}
@@ -151,7 +146,7 @@ export default function RecordScreen() {
         />
       </View>
       <FlatList
-        data={listaFiltrada}
+        data={filteredRecords}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <Item
@@ -183,7 +178,7 @@ const styles = StyleSheet.create({
     margin: 20,
     position: "relative",
   },
-  filtro: {
+  filter: {
     backgroundColor: themas.colors.bgInputs,
     borderRadius: 15,
     padding: 5,

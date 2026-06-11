@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
 import {
-  ActivityIndicator,
   FlatList,
   Pressable,
   RefreshControl,
@@ -9,6 +8,7 @@ import {
   View,
 } from "react-native";
 
+import { LoadingCoin } from "@/src/components/login/login";
 import { useAuth } from "@/src/contexts/auth";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -158,6 +158,7 @@ export default function NotificationsScreen() {
   const fetchNotifications = useCallback(
     async (unreadOnly = showUnreadOnly) => {
       try {
+        setLoading(true);
         setError(null);
         const endpoint = unreadOnly
           ? `http://localhost:8080/notification/user/${user?.id}/unread`
@@ -206,6 +207,23 @@ export default function NotificationsScreen() {
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
+  if (loading) {
+    return <LoadingCoin />;
+  }
+
+  if (error) {
+    return (
+      <View style={styles.emptyWrap}>
+        <Ionicons name="cloud-offline-outline" size={48} color="#FF4D4D" />
+        <Text style={[styles.emptyTitle, { color: "#FF4D4D" }]}>Ops!</Text>
+        <Text style={styles.emptyText}>{error}</Text>
+        <Pressable style={styles.retryBtn} onPress={() => fetchNotifications()}>
+          <Text style={styles.retryText}>Tentar novamente</Text>
+        </Pressable>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -253,49 +271,30 @@ export default function NotificationsScreen() {
           )}
         </Pressable>
       </View>
-      {loading ? (
-        <View style={styles.loadingWrap}>
-          <ActivityIndicator size="large" color="#6CFF2B" />
-          <Text style={styles.loadingText}>Carregando...</Text>
-        </View>
-      ) : error ? (
-        <View style={styles.emptyWrap}>
-          <Ionicons name="cloud-offline-outline" size={48} color="#FF4D4D" />
-          <Text style={[styles.emptyTitle, { color: "#FF4D4D" }]}>Ops!</Text>
-          <Text style={styles.emptyText}>{error}</Text>
-          <Pressable
-            style={styles.retryBtn}
-            onPress={() => fetchNotifications()}
-          >
-            <Text style={styles.retryText}>Tentar novamente</Text>
-          </Pressable>
-        </View>
-      ) : (
-        <FlatList
-          data={notifications}
-          keyExtractor={(item) => String(item.id)}
-          renderItem={({ item }) => (
-            <NotificationCard item={item} onMarkRead={handleMarkRead} />
-          )}
-          contentContainerStyle={
-            notifications.length === 0
-              ? styles.flatListEmpty
-              : styles.flatListContent
-          }
-          ListEmptyComponent={<EmptyState filtered={showUnreadOnly} />}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              tintColor="#6CFF2B"
-              colors={["#6CFF2B"]}
-            />
-          }
-          ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
-          ListFooterComponent={<View style={{ height: 120 }} />}
-        />
-      )}
+      <FlatList
+        data={notifications}
+        keyExtractor={(item) => String(item.id)}
+        renderItem={({ item }) => (
+          <NotificationCard item={item} onMarkRead={handleMarkRead} />
+        )}
+        contentContainerStyle={
+          notifications.length === 0
+            ? styles.flatListEmpty
+            : styles.flatListContent
+        }
+        ListEmptyComponent={<EmptyState filtered={showUnreadOnly} />}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#6CFF2B"
+            colors={["#6CFF2B"]}
+          />
+        }
+        ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+        ListFooterComponent={<View style={{ height: 120 }} />}
+      />
     </View>
   );
 }

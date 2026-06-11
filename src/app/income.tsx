@@ -13,8 +13,8 @@ import {
 import { Button } from "../components/Button";
 import { themas } from "../theme/themes";
 
-type OpcaoPagamento = {
-  icone: keyof typeof MaterialIcons.glyphMap;
+type PaymentOption = {
+  icon: keyof typeof MaterialIcons.glyphMap;
   label: string;
 };
 
@@ -26,34 +26,49 @@ export default function IncomeScreen() {
   const [text, setText] = useState("");
   const [number, setNumber] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedMethod, setSelectedMethod] = useState<OpcaoPagamento | null>(
+  const [selectedMethod, setSelectedMethod] = useState<PaymentOption | null>(
     null,
   );
+  const [numberError, setNumberError] = useState("");
 
   const handleNumber = (text: string) => {
-    setNumber(text.replace(/[^0-9]/g, ""));
+    setNumber(text.replace(/[^0-9,]/g, ""));
+    setNumberError("");
   };
 
-  const opcaoMap: Record<string, string> = {
+  const paymentMethodMap: Record<string, string> = {
     PIX: "Pix",
     Débito: "Debit",
     Crédito: "Credit",
     Dinheiro: "Cash",
   };
 
-  const opcoes: OpcaoPagamento[] = [
-    { label: "PIX", icone: "grid-view" },
-    { label: "Débito", icone: "credit-card" },
-    { label: "Crédito", icone: "credit-card" },
-    { label: "Dinheiro", icone: "paid" },
+  const paymentOptions: PaymentOption[] = [
+    { label: "PIX", icon: "grid-view" },
+    { label: "Débito", icon: "credit-card" },
+    { label: "Crédito", icon: "credit-card" },
+    { label: "Dinheiro", icon: "paid" },
   ];
 
-  function selectOption(opcao: OpcaoPagamento) {
+  function selectOption(opcao: PaymentOption) {
     setSelectedMethod(opcao);
     setModalVisible(false);
   }
 
   async function AddIncome() {
+    const parsed = parseFloat(number.replace(",", "."));
+
+    if (!number || isNaN(parsed)) {
+      setNumberError("Digite um valor");
+      return;
+    }
+
+    if (parsed > 99999999) {
+      setNumberError("Valor muito alto");
+      return;
+    }
+
+    setNumberError("");
     try {
       const response = await fetch("http://localhost:8080/income", {
         method: "POST",
@@ -63,8 +78,8 @@ export default function IncomeScreen() {
         },
         body: JSON.stringify({
           name: text,
-          amount: parseFloat(number.replace(",", ".")),
-          method: opcaoMap[selectedMethod?.label ?? ""],
+          amount: parsed,
+          method: paymentMethodMap[selectedMethod?.label ?? ""],
           userId: user?.id,
           date: new Date().toISOString().split("T")[0],
         }),
@@ -91,11 +106,11 @@ export default function IncomeScreen() {
             <MaterialIcons name="arrow-back" size={24} color="white" />
           </TouchableOpacity>
           <View style={styles.textContainer}>
-            <Text style={styles.textWhite}>Nova </Text>
-            <Text style={styles.textGreen}>Receita</Text>
+            <Text style={styles.headerText}>Nova </Text>
+            <Text style={styles.highlightText}>Receita</Text>
           </View>
         </View>
-        <Text style={styles.subTitle}>Nome da Receita</Text>
+        <Text style={styles.sectionTitle}>Nome da Receita</Text>
         <TextInput
           style={styles.input}
           onChangeText={setText}
@@ -104,8 +119,13 @@ export default function IncomeScreen() {
           placeholderTextColor="#777"
         />
 
-        <Text style={styles.subTitle}>Valor da Receita</Text>
-        <View style={styles.containerInput}>
+        <Text style={styles.sectionTitle}>Valor da Receita</Text>
+        <View
+          style={[
+            styles.containerInput,
+            numberError ? { borderColor: "red" } : null,
+          ]}
+        >
           <Text style={styles.prefix}>R$</Text>
           <TextInput
             style={styles.inputClean}
@@ -116,7 +136,12 @@ export default function IncomeScreen() {
             keyboardType="numeric"
           />
         </View>
-        <Text style={styles.subTitle}>Método</Text>
+        {numberError ? (
+          <Text style={{ color: "red", fontSize: 12, marginTop: 4 }}>
+            {numberError}
+          </Text>
+        ) : null}
+        <Text style={styles.sectionTitle}>Método</Text>
         <TouchableOpacity
           style={styles.methodSelector}
           onPress={() => setModalVisible(true)}
@@ -124,7 +149,7 @@ export default function IncomeScreen() {
           {selectedMethod ? (
             <View style={styles.selectedMethodRow}>
               <MaterialIcons
-                name={selectedMethod.icone}
+                name={selectedMethod.icon}
                 size={24}
                 color={themas.colors.primary}
               />
@@ -152,13 +177,13 @@ export default function IncomeScreen() {
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>Selecione um método:</Text>
 
-              {opcoes.map((item, index) => (
+              {paymentOptions.map((item, index) => (
                 <TouchableOpacity
                   key={index}
                   style={styles.optionCard}
                   onPress={() => selectOption(item)}
                 >
-                  <MaterialIcons name={item.icone} size={24} color="#5BBF26" />
+                  <MaterialIcons name={item.icon} size={24} color="#5BBF26" />
                   <Text style={styles.optionLabel}>{item.label}</Text>
                 </TouchableOpacity>
               ))}
@@ -203,17 +228,17 @@ const styles = StyleSheet.create({
   textContainer: {
     flexDirection: "row",
   },
-  textWhite: {
+  headerText: {
     color: themas.colors.secundary,
     fontSize: 18,
     fontWeight: "400",
   },
-  textGreen: {
+  highlightText: {
     color: themas.colors.primary,
     fontSize: 18,
     fontWeight: "600",
   },
-  subTitle: {
+  sectionTitle: {
     color: themas.colors.secundary,
     fontSize: 15,
     fontWeight: "600",
