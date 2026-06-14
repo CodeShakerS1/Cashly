@@ -1,4 +1,5 @@
 import * as FileSystem from "expo-file-system/legacy";
+import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
@@ -14,18 +15,23 @@ import {
 } from "react-native";
 import { useAuth } from "../../contexts/auth";
 
-async function convertToBase64(uri: string): Promise<string> {
-  const base64 = await FileSystem.readAsStringAsync(uri, {
+async function compressAndConvertToBase64(uri: string): Promise<string> {
+  const compressed = await ImageManipulator.manipulateAsync(
+    uri,
+    [{ resize: { width: 300 } }],
+    { compress: 0.5, format: ImageManipulator.SaveFormat.JPEG },
+  );
+
+  const base64 = await FileSystem.readAsStringAsync(compressed.uri, {
     encoding: FileSystem.EncodingType.Base64,
   });
-  const ext = uri.split(".").pop()?.toLowerCase() ?? "jpeg";
-  const mime = ext === "png" ? "image/png" : "image/jpeg";
-  return `data:${mime};base64,${base64}`;
+
+  return `data:image/jpeg;base64,${base64}`;
 }
 
-async function atualizarUsuario(
+async function updateUser(
   id: string,
-  dados: {
+  payload: {
     name: string;
     email: string;
     photo: string;
@@ -35,7 +41,7 @@ async function atualizarUsuario(
   const response = await fetch(`http://localhost:8080/user/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(dados),
+    body: JSON.stringify(payload),
   });
 
   if (!response.ok) {
@@ -79,7 +85,7 @@ export default function SettingsScreen() {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [1, 1],
-      quality: 0.5,
+      quality: 1,
     });
 
     if (result.canceled) return;
@@ -90,7 +96,7 @@ export default function SettingsScreen() {
 
     try {
       setConverting(true);
-      const base64 = await convertToBase64(localUri);
+      const base64 = await compressAndConvertToBase64(localUri);
       setAvatarBase64(base64);
     } catch {
       Alert.alert("Erro", "Não foi possível converter a imagem.");
@@ -109,36 +115,28 @@ export default function SettingsScreen() {
     if (!user) return;
 
     if (password.trim() !== "" && password.length < 6) {
-      Alert.alert(
-        "Senha inválida",
-        "A senha deve ter pelo menos 6 caracteres.",
-      );
+      Alert.alert("Senha inválida", "A senha deve ter pelo menos 6 caracteres.");
       return;
     }
 
-    const novaFoto = avatarBase64 ?? user.photo;
+    const newPhoto = avatarBase64 ?? user.photo;
 
     try {
       setSaving(true);
 
-      const dadosAtualizacao: any = {
+      const updatePayload: any = {
         name,
         email,
-        photo: novaFoto,
+        photo: newPhoto,
       };
 
       if (password.trim() !== "") {
-        dadosAtualizacao.password = password;
+        updatePayload.password = password;
       }
 
-      await atualizarUsuario(user.id, dadosAtualizacao);
+      await updateUser(user.id, updatePayload);
 
-      saveUser({
-        ...user,
-        name,
-        email,
-        photo: novaFoto,
-      });
+      saveUser({ ...user, name, email, photo: newPhoto });
 
       Alert.alert("Sucesso", "Perfil atualizado!");
       setPassword("");
@@ -273,7 +271,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: "#5BBF26",
+    backgroundColor: "#5CD338",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -304,7 +302,7 @@ const styles = StyleSheet.create({
   },
   cameraEmoji: { fontSize: 14 },
   feedback: {
-    color: "#5BBF26",
+    color: "#5CD338",
     fontSize: 11,
     textAlign: "center",
     marginBottom: 8,
@@ -320,10 +318,10 @@ const styles = StyleSheet.create({
     padding: 12,
     color: "#fff",
     borderWidth: 1,
-    borderColor: "#5BBF26",
+    borderColor: "#5CD338",
   },
   saveButton: {
-    backgroundColor: "#5BBF26",
+    backgroundColor: "#5CD338",
     padding: 15,
     borderRadius: 10,
     marginTop: 20,
