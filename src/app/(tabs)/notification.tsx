@@ -13,7 +13,12 @@ import { useAuth } from "@/src/contexts/auth";
 import { Ionicons } from "@expo/vector-icons";
 
 type NotificationType =
+  | "income_success"
   | "income_sucess"
+  | "expense_success"
+  | "expense_updated"
+  | "negative_balance"
+  | "weekly_report"
   | "limit_warning_80"
   | "limit_exceeded_100"
   | string;
@@ -35,12 +40,41 @@ function getTypeConfig(type: NotificationType): {
   tag: string;
 } {
   switch (type) {
+    case "income_success":
     case "income_sucess":
       return {
         color: "#6CFF2B",
         bg: "#6CFF2B18",
         icon: "wallet",
         tag: "Receita",
+      };
+    case "expense_success":
+      return {
+        color: "#FF8C00",
+        bg: "#FF8C0018",
+        icon: "cart",
+        tag: "Despesa",
+      };
+    case "expense_updated":
+      return {
+        color: "#00BFFF",
+        bg: "#00BFFF18",
+        icon: "create",
+        tag: "Atualizado",
+      };
+    case "negative_balance":
+      return {
+        color: "#FF4D4D",
+        bg: "#FF4D4D18",
+        icon: "trending-down",
+        tag: "Saldo",
+      };
+    case "weekly_report":
+      return {
+        color: "#A78BFA",
+        bg: "#A78BFA18",
+        icon: "bar-chart",
+        tag: "Resumo",
       };
     case "limit_warning_80":
       return {
@@ -304,7 +338,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#000000",
   },
-
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -324,7 +357,6 @@ const styles = StyleSheet.create({
     marginTop: 2,
     fontWeight: "500",
   },
-
   filterRow: {
     flexDirection: "row",
     paddingHorizontal: 20,
@@ -355,7 +387,6 @@ const styles = StyleSheet.create({
     color: "#6CFF2B",
     fontWeight: "700",
   },
-
   badge: {
     backgroundColor: "#6CFF2B",
     borderRadius: 10,
@@ -370,7 +401,6 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     color: "#000000",
   },
-
   card: {
     marginHorizontal: 20,
     borderRadius: 25,
@@ -443,7 +473,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
   },
-
   flatListContent: {
     paddingTop: 4,
   },
@@ -451,7 +480,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
   },
-
   loadingWrap: {
     flex: 1,
     alignItems: "center",
@@ -462,7 +490,6 @@ const styles = StyleSheet.create({
     color: "#555",
     fontSize: 14,
   },
-
   emptyWrap: {
     flex: 1,
     alignItems: "center",

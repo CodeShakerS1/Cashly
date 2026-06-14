@@ -61,8 +61,10 @@ type Tooltip = {
 };
 
 function formatBRL(value: number) {
-  if (value >= 1000) return `R$ ${(value / 1000).toFixed(1)}k`;
-  return `R$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 0 })}`;
+  return value.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
 }
 
 function DonutChart({
@@ -168,7 +170,7 @@ function BarChart({ monthlyData }: { monthlyData: MonthData[] }) {
   const barWidth = chartWidth > 0 ? chartWidth / MONTHS.length / 2 - 1.5 : 0;
   const groupWidth = barWidth * 2 + 1.5;
   const gap = chartWidth > 0 ? (chartWidth - groupWidth * 12) / 11 : 0;
-  const BALLOON_WIDTH = 130;
+  const BALLOON_WIDTH = 150;
 
   return (
     <View
@@ -297,10 +299,9 @@ const barStyles = StyleSheet.create({
     marginTop: 8,
   },
   monthLabel: { color: "#444", fontSize: 8, textAlign: "center", flex: 1 },
-
   balloon: {
     position: "absolute",
-    top: -88,
+    top: -95,
     backgroundColor: "#222",
     borderRadius: 10,
     paddingVertical: 8,
