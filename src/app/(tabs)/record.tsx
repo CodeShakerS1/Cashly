@@ -182,8 +182,8 @@ const styles = StyleSheet.create({
     backgroundColor: themas.colors.bgInputs,
     borderRadius: 15,
     padding: 5,
-    justifyContent: "center",
-    alignItems: "center",
+    width: "25%",
+    paddingHorizontal: 11,
   },
   text1: {
     color: themas.colors.primary,
@@ -260,6 +260,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     borderWidth: 1,
     borderColor: "#2A2A2A",
+    width: "25%",
   },
   dropdownItemContainer: {
     borderRadius: 13,
@@ -273,6 +274,7 @@ const styles = StyleSheet.create({
     color: "#FFF",
     fontSize: 13,
     fontWeight: "400",
+    textAlign: "right",
   },
   dropdownItemText: {
     color: "#FFF",
