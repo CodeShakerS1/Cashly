@@ -13,14 +13,31 @@ import Svg, { Circle } from "react-native-svg";
 import { useAuth } from "../../contexts/auth";
 
 const MONTHS = [
-  "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
-  "Jul", "Ago", "Set", "Out", "Nov", "Dez",
+  "Jan",
+  "Fev",
+  "Mar",
+  "Abr",
+  "Mai",
+  "Jun",
+  "Jul",
+  "Ago",
+  "Set",
+  "Out",
+  "Nov",
+  "Dez",
 ];
 
 const CATEGORY_COLORS = [
-  "#5CD338", "#00BCD4", "#FF9800", "#E91E63",
-  "#9C27B0", "#FF5722", "#2196F3", "#FFEB3B",
-  "#00E676", "#F06292",
+  "#5CD338",
+  "#00BCD4",
+  "#FF9800",
+  "#E91E63",
+  "#9C27B0",
+  "#FF5722",
+  "#2196F3",
+  "#FFEB3B",
+  "#00E676",
+  "#F06292",
 ];
 
 type MonthData = {
@@ -65,7 +82,14 @@ function DonutChart({
     return (
       <View style={donutStyles.wrapper}>
         <Svg width={size} height={size}>
-          <Circle cx={center} cy={center} r={radius} stroke="#2A2A2A" strokeWidth={stroke} fill="none" />
+          <Circle
+            cx={center}
+            cy={center}
+            r={radius}
+            stroke="#2A2A2A"
+            strokeWidth={stroke}
+            fill="none"
+          />
         </Svg>
         <View style={donutStyles.centerLabel}>
           <Text style={donutStyles.centerVal}>R$ 0</Text>
@@ -80,7 +104,14 @@ function DonutChart({
   return (
     <View style={donutStyles.wrapper}>
       <Svg width={size} height={size}>
-        <Circle cx={center} cy={center} r={radius} stroke="#2A2A2A" strokeWidth={stroke} fill="none" />
+        <Circle
+          cx={center}
+          cy={center}
+          r={radius}
+          stroke="#2A2A2A"
+          strokeWidth={stroke}
+          fill="none"
+        />
         {categories.map((cat, i) => {
           const dash = circumference * (cat.pct / 100);
           const gap = circumference - dash;
@@ -89,7 +120,9 @@ function DonutChart({
           return (
             <Circle
               key={i}
-              cx={center} cy={center} r={radius}
+              cx={center}
+              cy={center}
+              r={radius}
               stroke={cat.color}
               strokeWidth={stroke}
               fill="none"
@@ -108,8 +141,17 @@ function DonutChart({
 }
 
 const donutStyles = StyleSheet.create({
-  wrapper: { alignItems: "center", justifyContent: "center", width: 190, height: 190 },
-  centerLabel: { position: "absolute", alignItems: "center", justifyContent: "center" },
+  wrapper: {
+    alignItems: "center",
+    justifyContent: "center",
+    width: 190,
+    height: 190,
+  },
+  centerLabel: {
+    position: "absolute",
+    alignItems: "center",
+    justifyContent: "center",
+  },
   centerVal: { color: "#FFF", fontSize: 17, fontWeight: "bold" },
   centerSub: { color: "#666", fontSize: 10, marginTop: 2 },
 });
@@ -133,24 +175,42 @@ function BarChart({ monthlyData }: { monthlyData: MonthData[] }) {
       onLayout={(e) => setChartWidth(e.nativeEvent.layout.width)}
       style={{ position: "relative" }}
     >
-      {tooltip && chartWidth > 0 && (() => {
-        const rawLeft = tooltip.x - BALLOON_WIDTH / 2;
-        const clampedLeft = Math.min(Math.max(rawLeft, 0), chartWidth - BALLOON_WIDTH);
-        return (
-          <View style={[barStyles.balloon, { left: clampedLeft, width: BALLOON_WIDTH }]}>
-            <Text style={barStyles.balloonMonth}>{tooltip.month}</Text>
-            <View style={barStyles.balloonRow}>
-              <View style={[barStyles.balloonDot, { backgroundColor: "#5CD338" }]} />
-              <Text style={barStyles.balloonText}>Receita: {formatBRL(tooltip.income)}</Text>
+      {tooltip &&
+        chartWidth > 0 &&
+        (() => {
+          const rawLeft = tooltip.x - BALLOON_WIDTH / 2;
+          const clampedLeft = Math.min(
+            Math.max(rawLeft, 0),
+            chartWidth - BALLOON_WIDTH,
+          );
+          return (
+            <View
+              style={[
+                barStyles.balloon,
+                { left: clampedLeft, width: BALLOON_WIDTH },
+              ]}
+            >
+              <Text style={barStyles.balloonMonth}>{tooltip.month}</Text>
+              <View style={barStyles.balloonRow}>
+                <View
+                  style={[barStyles.balloonDot, { backgroundColor: "#5CD338" }]}
+                />
+                <Text style={barStyles.balloonText}>
+                  Receita: {formatBRL(tooltip.income)}
+                </Text>
+              </View>
+              <View style={barStyles.balloonRow}>
+                <View
+                  style={[barStyles.balloonDot, { backgroundColor: "#E53935" }]}
+                />
+                <Text style={barStyles.balloonText}>
+                  Despesa: {formatBRL(tooltip.expense)}
+                </Text>
+              </View>
+              <View style={barStyles.balloonArrow} />
             </View>
-            <View style={barStyles.balloonRow}>
-              <View style={[barStyles.balloonDot, { backgroundColor: "#E53935" }]} />
-              <Text style={barStyles.balloonText}>Despesa: {formatBRL(tooltip.expense)}</Text>
-            </View>
-            <View style={barStyles.balloonArrow} />
-          </View>
-        );
-      })()}
+          );
+        })()}
 
       <View style={barStyles.container}>
         {chartWidth > 0 && (
@@ -254,8 +314,18 @@ const barStyles = StyleSheet.create({
     shadowOffset: { width: 0, height: 3 },
     elevation: 10,
   },
-  balloonMonth: { color: "#FFF", fontSize: 11, fontWeight: "700", marginBottom: 5 },
-  balloonRow: { flexDirection: "row", alignItems: "center", gap: 5, marginTop: 3 },
+  balloonMonth: {
+    color: "#FFF",
+    fontSize: 11,
+    fontWeight: "700",
+    marginBottom: 5,
+  },
+  balloonRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    marginTop: 3,
+  },
   balloonDot: { width: 7, height: 7, borderRadius: 4 },
   balloonText: { color: "#CCC", fontSize: 11 },
   balloonArrow: {
@@ -321,7 +391,9 @@ export default function RelatoryScreen() {
       setTotalIncome(tI);
       setTotalExpense(tE);
 
-      const catRes = await fetch(`http://localhost:8080/category/user/${user.id}`);
+      const catRes = await fetch(
+        `http://localhost:8080/category/user/${user.id}`,
+      );
       const catData: any[] = catRes.ok ? await catRes.json() : [];
 
       const categoriesWithValues = await Promise.all(
@@ -333,7 +405,10 @@ export default function RelatoryScreen() {
             );
             if (expByCatRes.ok) {
               const expByCat: any[] = await expByCatRes.json();
-              totalSpent = expByCat.reduce((acc, e) => acc + Number(e.amount), 0);
+              totalSpent = expByCat.reduce(
+                (acc, e) => acc + Number(e.amount),
+                0,
+              );
             }
           } catch {}
           return {
@@ -346,7 +421,8 @@ export default function RelatoryScreen() {
         }),
       );
 
-      const totalCategories = categoriesWithValues.reduce((sum, c) => sum + c.value, 0) || 1;
+      const totalCategories =
+        categoriesWithValues.reduce((sum, c) => sum + c.value, 0) || 1;
       const finalCategories: DonutCategory[] = categoriesWithValues
         .filter((c) => c.value > 0)
         .map((c) => ({
@@ -373,18 +449,29 @@ export default function RelatoryScreen() {
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.header}>
           <Text style={styles.title}>Relatórios</Text>
-          <TouchableOpacity style={styles.bell}>
-            <MaterialIcons name="notifications-none" size={22} color="#FFF" />
+          <TouchableOpacity
+            style={styles.bell}
+            onPress={() => router.navigate("/notification")}
+          >
+            <MaterialIcons name="notifications" size={22} color="#FFF" />
           </TouchableOpacity>
         </View>
-        <Text style={styles.period}>{currentMonth} {currentYear}</Text>
+        <Text style={styles.period}>
+          {currentMonth} {currentYear}
+        </Text>
 
         {loading ? (
-          <ActivityIndicator color="#5CD338" size="large" style={{ marginTop: 80 }} />
+          <ActivityIndicator
+            color="#5CD338"
+            size="large"
+            style={{ marginTop: 80 }}
+          />
         ) : (
           <>
             <View style={styles.card}>
@@ -396,25 +483,35 @@ export default function RelatoryScreen() {
                 <View style={styles.catGrid}>
                   {categories.map((cat, i) => (
                     <View key={i} style={styles.catItem}>
-                      <View style={[styles.catDot, { backgroundColor: cat.color }]} />
-                      <Text style={styles.catName} numberOfLines={1}>{cat.name}</Text>
+                      <View
+                        style={[styles.catDot, { backgroundColor: cat.color }]}
+                      />
+                      <Text style={styles.catName} numberOfLines={1}>
+                        {cat.name}
+                      </Text>
                       <Text style={styles.catPct}>{cat.pct}%</Text>
                     </View>
                   ))}
                 </View>
               ) : (
-                <Text style={styles.emptyText}>Nenhuma categoria com despesas</Text>
+                <Text style={styles.emptyText}>
+                  Nenhuma categoria com despesas
+                </Text>
               )}
             </View>
 
             <View style={styles.summaryRow}>
               <View style={styles.sumCard}>
                 <Text style={styles.sumLabel}>RECEITA</Text>
-                <Text style={[styles.sumVal, { color: "#5CD338" }]}>{formatBRL(totalIncome)}</Text>
+                <Text style={[styles.sumVal, { color: "#5CD338" }]}>
+                  {formatBRL(totalIncome)}
+                </Text>
               </View>
               <View style={styles.sumCard}>
                 <Text style={styles.sumLabel}>DESPESA</Text>
-                <Text style={[styles.sumVal, { color: "#E53935" }]}>{formatBRL(totalExpense)}</Text>
+                <Text style={[styles.sumVal, { color: "#E53935" }]}>
+                  {formatBRL(totalExpense)}
+                </Text>
               </View>
             </View>
 
@@ -422,11 +519,15 @@ export default function RelatoryScreen() {
               <Text style={styles.cardTitle}>RECEITAS VS. DESPESAS</Text>
               <View style={styles.barLegend}>
                 <View style={styles.legendItem}>
-                  <View style={[styles.legendDot, { backgroundColor: "#E53935" }]} />
+                  <View
+                    style={[styles.legendDot, { backgroundColor: "#E53935" }]}
+                  />
                   <Text style={styles.legendText}>Despesa</Text>
                 </View>
                 <View style={styles.legendItem}>
-                  <View style={[styles.legendDot, { backgroundColor: "#5CD338" }]} />
+                  <View
+                    style={[styles.legendDot, { backgroundColor: "#5CD338" }]}
+                  />
                   <Text style={styles.legendText}>Receita</Text>
                 </View>
               </View>
@@ -435,7 +536,7 @@ export default function RelatoryScreen() {
 
             <TouchableOpacity
               style={styles.btnHistory}
-              onPress={() => router.push("/details")}
+              onPress={() => router.push("/(tabs)/record")}
               activeOpacity={0.85}
             >
               <Text style={styles.btnHistoryText}>Ver Histórico</Text>
@@ -452,13 +553,28 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#0A0A0A" },
   scroll: { paddingTop: 56, paddingBottom: 40, paddingHorizontal: 16 },
 
-  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 4 },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 4,
+  },
   title: { color: "#FFF", fontSize: 22, fontWeight: "700" },
   bell: { backgroundColor: "#1C1C1C", padding: 10, borderRadius: 50 },
   period: { color: "#555", fontSize: 12, marginBottom: 20 },
 
-  card: { backgroundColor: "#1A1A1A", borderRadius: 20, padding: 16, marginBottom: 14 },
-  cardTitle: { color: "#555", fontSize: 10, letterSpacing: 1, marginBottom: 14 },
+  card: {
+    backgroundColor: "#1A1A1A",
+    borderRadius: 20,
+    padding: 16,
+    marginBottom: 14,
+  },
+  cardTitle: {
+    color: "#555",
+    fontSize: 10,
+    letterSpacing: 1,
+    marginBottom: 14,
+  },
 
   donutRow: { alignItems: "center", marginBottom: 16 },
 
@@ -467,11 +583,26 @@ const styles = StyleSheet.create({
   catDot: { width: 8, height: 8, borderRadius: 4, flexShrink: 0 },
   catName: { color: "#AAA", fontSize: 11, flex: 1 },
   catPct: { color: "#FFF", fontSize: 11, fontWeight: "600" },
-  emptyText: { color: "#555", fontSize: 12, textAlign: "center", paddingVertical: 8 },
+  emptyText: {
+    color: "#555",
+    fontSize: 12,
+    textAlign: "center",
+    paddingVertical: 8,
+  },
 
   summaryRow: { flexDirection: "row", gap: 10, marginBottom: 14 },
-  sumCard: { flex: 1, backgroundColor: "#1A1A1A", borderRadius: 16, padding: 14 },
-  sumLabel: { color: "#555", fontSize: 10, letterSpacing: 0.5, marginBottom: 6 },
+  sumCard: {
+    flex: 1,
+    backgroundColor: "#1A1A1A",
+    borderRadius: 16,
+    padding: 14,
+  },
+  sumLabel: {
+    color: "#555",
+    fontSize: 10,
+    letterSpacing: 0.5,
+    marginBottom: 6,
+  },
   sumVal: { fontSize: 18, fontWeight: "700" },
 
   barLegend: { flexDirection: "row", gap: 16, marginBottom: 8 },
