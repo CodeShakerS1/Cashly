@@ -8,6 +8,9 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 
 import Logo from "../assets/images/logo.png";
@@ -16,27 +19,30 @@ import { themas } from "../theme/themes";
 export default function RegisterScreen() {
   const router = useRouter();
 
-  const [nome, setNome] = useState("");
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
-  const [confirmarSenha, setConfirmarSenha] = useState("");
-  const [erro, setErro] = useState("");
-  const [carregando, setCarregando] = useState(false);
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function validarCampos() {
-    if (!nome.trim() || !email.trim() || !senha || !confirmarSenha) {
+  function validateFields() {
+    const trimmedEmail = email.trim();
+
+    if (!name.trim() || !trimmedEmail || !password || !confirmPassword) {
       return "Preencha todos os campos";
     }
 
-    if (!email.includes("@")) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmedEmail)) {
       return "Insira um e-mail válido";
     }
 
-    if (senha.length < 6) {
+    if (password.length < 6) {
       return "A senha deve ter pelo menos 6 caracteres";
     }
 
-    if (senha !== confirmarSenha) {
+    if (password !== confirmPassword) {
       return "As senhas não coincidem";
     }
 
@@ -44,197 +50,207 @@ export default function RegisterScreen() {
   }
 
   async function handleRegister() {
-    const erroValidacao = validarCampos();
+    const validationError = validateFields();
 
-    if (erroValidacao) {
-      setErro(erroValidacao);
+    if (validationError) {
+      setError(validationError);
       return;
     }
 
-    setErro("");
-    setCarregando(true);
+    setError("");
+    setLoading(true);
 
     try {
-      const cadastroResponse = await fetch("http://localhost:8080/user", {
+      const registerResponse = await fetch("http://localhost:8080/user", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: nome.trim(),
+          name: name.trim(),
           email: email.trim().toLowerCase(),
-          password: senha,
-          photo:
-            "https://www.pngall.com/wp-content/uploads/5/User-Profile-PNG-High-Quality-Image.png",
+          password,
+          photo: "https://www.pngall.com/wp-content/uploads/5/User-Profile-PNG-High-Quality-Image.png",
         }),
       });
 
-      if (!cadastroResponse.ok) {
-        const mensagemErro = await cadastroResponse.text();
-        throw new Error(mensagemErro || "Erro ao cadastrar usuário");
+      if (!registerResponse.ok) {
+        const errorMessage = await registerResponse.text();
+        throw new Error(errorMessage || "Erro ao cadastrar usuário");
       }
       router.replace("/login");
-    } catch (error: any) {
-      console.error("Erro no cadastro:", error);
-      setErro(error.message || "Não foi possível conectar ao servidor");
+    } catch (err: any) {
+      console.error("Register error:", err);
+      setError(err.message || "Não foi possível conectar ao servidor");
     } finally {
-      setCarregando(false);
+      setLoading(false);
     }
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.boxTop}>
-        <Image source={Logo} style={styles.logo} resizeMode="contain" />
-      </View>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.container}
+    >
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.content}>
 
-      <View style={styles.boxMid}>
-        <Text style={styles.text}>Crie sua conta</Text>
+          <View style={styles.topBox}>
+            <Image source={Logo} style={styles.logo} resizeMode="contain" />
+          </View>
 
-        <View style={styles.boxInput}>
-          <MaterialIcons
-            name="person"
-            size={20}
-            color={themas.colors.secundary}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Nome completo"
-            placeholderTextColor="#999"
-            value={nome}
-            onChangeText={setNome}
-          />
-        </View>
+          <View style={styles.midBox}>
+            <Text style={styles.title}>Crie sua conta</Text>
 
-        <View style={styles.boxInput}>
-          <MaterialIcons
-            name="email"
-            size={20}
-            color={themas.colors.secundary}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="E-mail"
-            placeholderTextColor="#999"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            value={email}
-            onChangeText={setEmail}
-          />
-        </View>
+            <View style={styles.inputBox}>
+              <MaterialIcons
+                name="person"
+                size={20}
+                color={themas.colors.secundary}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Nome completo"
+                placeholderTextColor="#999"
+                value={name}
+                onChangeText={setName}
+              />
+            </View>
 
-        <View style={styles.boxInput}>
-          <MaterialIcons
-            name="lock"
-            size={20}
-            color={themas.colors.secundary}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Senha"
-            placeholderTextColor="#999"
-            secureTextEntry
-            value={senha}
-            onChangeText={setSenha}
-          />
-        </View>
+            <View style={styles.inputBox}>
+              <MaterialIcons
+                name="email"
+                size={20}
+                color={themas.colors.secundary}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="E-mail"
+                placeholderTextColor="#999"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                value={email}
+                onChangeText={setEmail}
+              />
+            </View>
 
-        <View style={styles.boxInput}>
-          <MaterialIcons
-            name="lock-outline"
-            size={20}
-            color={themas.colors.secundary}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Confirmar senha"
-            placeholderTextColor="#999"
-            secureTextEntry
-            value={confirmarSenha}
-            onChangeText={setConfirmarSenha}
-          />
-        </View>
+            <View style={styles.inputBox}>
+              <MaterialIcons
+                name="lock"
+                size={20}
+                color={themas.colors.secundary}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Senha"
+                placeholderTextColor="#999"
+                secureTextEntry
+                value={password}
+                onChangeText={setPassword}
+              />
+            </View>
 
-        {erro ? <Text style={styles.erroText}>{erro}</Text> : null}
+            <View style={styles.inputBox}>
+              <MaterialIcons
+                name="lock-outline"
+                size={20}
+                color={themas.colors.secundary}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Confirmar senha"
+                placeholderTextColor="#999"
+                secureTextEntry
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+              />
+            </View>
 
-        <Text style={styles.textBottom}>
-          Ao continuar você concorda com os nossos
-          <Text style={{ color: themas.colors.primary }}> Termos de Uso </Text>e
-          <Text style={{ color: themas.colors.primary }}>
-            {" "}
-            Política de Privacidade{" "}
-          </Text>
-          .
-        </Text>
-      </View>
+            {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-      <View style={styles.boxBottom}>
-        <TouchableOpacity
-          style={[styles.button, carregando && { opacity: 0.7 }]}
-          onPress={handleRegister}
-          disabled={carregando}
-        >
-          <Text style={styles.textButton}>
-            {carregando ? "Cadastrando..." : "Cadastrar"}
-          </Text>
-        </TouchableOpacity>
-
-        <Link href="/login" push asChild>
-          <TouchableOpacity>
-            <Text style={styles.textBottom}>
-              Já tem uma conta?
-              <Text style={{ color: themas.colors.primary }}> Entrar</Text>
+            <Text style={styles.bottomText}>
+              Ao continuar você concorda com os nossos
+              <Text style={{ color: themas.colors.primary }}> Termos de Uso </Text>e
+              <Text style={{ color: themas.colors.primary }}>
+                {" "}Política de Privacidade{" "}
+              </Text>
+              .
             </Text>
-          </TouchableOpacity>
-        </Link>
-      </View>
-    </View>
+          </View>
+
+          <View style={styles.bottomBox}>
+            <TouchableOpacity
+              style={[styles.button, loading && { opacity: 0.7 }]}
+              onPress={handleRegister}
+              disabled={loading}
+            >
+              <Text style={styles.buttonText}>
+                {loading ? "Cadastrando..." : "Cadastrar"}
+              </Text>
+            </TouchableOpacity>
+
+            <Link href="/login" push asChild>
+              <TouchableOpacity style={{ width: "100%" }}>
+                <Text style={styles.bottomLinkText}>
+                  Já tem uma conta?
+                  <Text style={{ color: themas.colors.primary }}> Entrar</Text>
+                </Text>
+              </TouchableOpacity>
+            </Link>
+          </View>
+
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: "100%",
     backgroundColor: themas.colors.bgScreen,
-    alignItems: "center",
+  },
+  scrollContainer: {
+    flexGrow: 1,
     justifyContent: "center",
-  },
-
-  boxTop: {
-    flex: 2,
-    width: "100%",
     alignItems: "center",
-    justifyContent: "flex-end",
+    paddingVertical: 20,
   },
-
-  boxMid: {
-    flex: 3,
+  content: {
     width: "100%",
+    maxWidth: 450,
     alignItems: "center",
     paddingHorizontal: 30,
   },
-
-  boxBottom: {
-    flex: 1.5,
+  topBox: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 20,
+    marginTop: 10,
+  },
+  midBox: {
     width: "100%",
     alignItems: "center",
-    justifyContent: "flex-start",
   },
-
+  bottomBox: {
+    width: "100%",
+    alignItems: "center",
+    marginTop: 20,
+  },
   logo: {
-    width: 180,
-    height: 180,
+    width: 250,
+    height: 250,
   },
-
-  text: {
+  title: {
     fontWeight: "bold",
     fontSize: 22,
     color: themas.colors.secundary,
-    marginBottom: 20,
+    marginBottom: 15,
   },
-
-  boxInput: {
+  inputBox: {
     width: "100%",
     height: 55,
     borderRadius: 12,
@@ -244,7 +260,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     backgroundColor: themas.colors.bgInputs,
   },
-
   input: {
     flex: 1,
     height: "100%",
@@ -252,34 +267,37 @@ const styles = StyleSheet.create({
     color: themas.colors.secundary,
     fontSize: 16,
   },
-
   button: {
-    width: "85%",
+    width: "100%",
     height: 55,
-    borderRadius: 18,
+    borderRadius: 12,
     backgroundColor: themas.colors.primary,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 20,
+    marginTop: 10,
   },
-
-  textButton: {
-    fontSize: 20,
+  buttonText: {
+    fontSize: 18,
     color: "#fff",
     fontWeight: "bold",
   },
-
-  textBottom: {
-    fontSize: 14,
+  bottomText: {
+    fontSize: 13,
     color: themas.colors.secundary,
     marginTop: 15,
     textAlign: "center",
+    lineHeight: 18,
   },
-
-  erroText: {
+  bottomLinkText: {
+    fontSize: 14,
+    color: themas.colors.secundary,
+    marginTop: 20,
+    textAlign: "center",
+  },
+  errorText: {
     color: "red",
     fontSize: 14,
-    marginTop: 15,
+    marginTop: 12,
     textAlign: "center",
     fontWeight: "bold",
   },
