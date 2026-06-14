@@ -9,6 +9,9 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import Logo from "../assets/images/logo.png";
 import { themas } from "../theme/themes";
@@ -20,17 +23,17 @@ export default function LoginScreen() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [erro, setErro] = useState("");
+  const [error, setError] = useState("");
 
   const { saveUser } = useAuth();
 
   async function loginUser() {
     if (!email || !password) {
-      setErro("Preencha todos os campos");
+      setError("Preencha todos os campos");
       return;
     }
 
-    setErro("");
+    setError("");
 
     try {
       const response = await fetch("http://localhost:8080/user/login", {
@@ -43,107 +46,123 @@ export default function LoginScreen() {
       });
 
       if (!response.ok) {
-        setErro("Email ou Senha inválidos");
+        setError("Email ou Senha inválidos");
         return;
       }
 
       const data = await response.json();
-      console.log("Resposta:", data);
+      console.log("Login response:", data);
 
       saveUser(data);
       router.push("/(tabs)");
-    } catch (error) {
-      setErro("Erro de conexão" + error);
+    } catch (err) {
+      setError("Erro de conexão" + err);
     }
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.boxTop}>
-        <Image source={Logo} style={styles.logo} resizeMode="contain" />
-      </View>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.container}
+    >
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.content}>
 
-      <View style={styles.boxMid}>
-        <Text style={styles.text}>Bem vindo de volta!</Text>
+          <View style={styles.topBox}>
+            <Image source={Logo} style={styles.logo} resizeMode="contain" />
+          </View>
 
-        <View style={styles.boxInput}>
-          <MaterialIcons
-            name="email"
-            size={20}
-            color={themas.colors.secundary}
-          />
+          <View style={styles.midBox}>
+            <Text style={styles.title}>Bem vindo de volta!</Text>
 
-          <TextInput
-            style={styles.input}
-            placeholder="Email"
-            value={email}
-            onChangeText={setEmail}
-          />
+            <View style={styles.inputBox}>
+              <MaterialIcons
+                name="email"
+                size={20}
+                color={themas.colors.secundary}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Email"
+                value={email}
+                onChangeText={setEmail}
+              />
+            </View>
+
+            <View style={styles.inputBox}>
+              <MaterialIcons
+                name="lock"
+                size={20}
+                color={themas.colors.secundary}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Senha"
+                secureTextEntry={true}
+                value={password}
+                onChangeText={setPassword}
+              />
+            </View>
+
+            <TouchableOpacity style={styles.forgotBox}>
+              <Text style={styles.forgotText}>Esqueceu a senha?</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.bottomBox}>
+            <TouchableOpacity style={styles.button} onPress={loginUser}>
+              <Text style={styles.buttonText}>Entrar</Text>
+            </TouchableOpacity>
+
+            {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
+            <Link href="/register" push asChild>
+              <TouchableOpacity>
+                <Text style={styles.bottomText}>
+                  Não tem conta?
+                  <Text style={{ color: themas.colors.primary }}> Cadastre-se</Text>
+                </Text>
+              </TouchableOpacity>
+            </Link>
+          </View>
+
         </View>
-
-        <View style={styles.boxInput}>
-          <MaterialIcons
-            name="lock"
-            size={20}
-            color={themas.colors.secundary}
-          />
-
-          <TextInput
-            style={styles.input}
-            placeholder="Senha"
-            secureTextEntry={true}
-            value={password}
-            onChangeText={setPassword}
-          />
-        </View>
-
-        <TouchableOpacity style={styles.boxForgot}>
-          <Text style={styles.textForgot}>Esqueceu a senha?</Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.boxBottom}>
-        <TouchableOpacity style={styles.button} onPress={loginUser}>
-          <Text style={styles.textButton}>Entrar</Text>
-        </TouchableOpacity>
-
-        {erro ? <Text style={styles.erroText}>{erro}</Text> : null}
-
-        <Link href="/register" push asChild>
-          <TouchableOpacity>
-            <Text style={styles.textBottom}>
-              Não tem conta?
-              <Text style={{ color: themas.colors.primary }}> Cadastre-se</Text>
-            </Text>
-          </TouchableOpacity>
-        </Link>
-      </View>
-    </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: "100%",
-    height: "100%",
     backgroundColor: themas.colors.bgScreen,
-    alignItems: "flex-end",
-    justifyContent: "center",
   },
-  boxTop: {
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  content: {
+    width: "100%",
+    maxWidth: 450,
+    alignItems: "center",
+  },
+  topBox: {
     height: Dimensions.get("window").height / 2.5,
     width: "100%",
     alignItems: "center",
     justifyContent: "center",
   },
-  boxMid: {
+  midBox: {
     height: Dimensions.get("window").height / 3,
     width: "100%",
     alignItems: "center",
     paddingHorizontal: 37,
   },
-  boxBottom: {
+  bottomBox: {
     height: Dimensions.get("window").height / 4,
     width: "100%",
     alignItems: "center",
@@ -162,7 +181,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4.65,
     elevation: 7,
   },
-  boxInput: {
+  inputBox: {
     width: "100%",
     height: 50,
     borderRadius: 12,
@@ -177,7 +196,7 @@ const styles = StyleSheet.create({
     height: 300,
     marginTop: 150,
   },
-  text: {
+  title: {
     fontWeight: "bold",
     fontSize: 20,
     color: themas.colors.secundary,
@@ -191,29 +210,28 @@ const styles = StyleSheet.create({
     marginLeft: 20,
     color: themas.colors.secundary,
   },
-  textButton: {
+  buttonText: {
     fontSize: 22,
     color: themas.colors.secundary,
     fontWeight: "bold",
   },
-  textBottom: {
+  bottomText: {
     fontSize: 14,
     color: themas.colors.secundary,
     paddingTop: 10,
   },
-  boxForgot: {
+  forgotBox: {
     width: "100%",
     alignItems: "flex-end",
     marginTop: 10,
   },
-  textForgot: {
+  forgotText: {
     color: themas.colors.primary,
     fontSize: 14,
     fontWeight: "500",
     paddingRight: 10,
   },
-
-  erroText: {
+  errorText: {
     color: "red",
     fontSize: 14,
     marginTop: 15,
