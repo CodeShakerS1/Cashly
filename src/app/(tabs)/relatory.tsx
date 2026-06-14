@@ -7,64 +7,61 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import Svg, { Circle } from "react-native-svg";
 import { useAuth } from "../../contexts/auth";
 
-const MESES = [
+const MONTHS = [
   "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
   "Jul", "Ago", "Set", "Out", "Nov", "Dez",
 ];
 
-const CORES_CATEGORIAS = [
+const CATEGORY_COLORS = [
   "#5CD338", "#00BCD4", "#FF9800", "#E91E63",
   "#9C27B0", "#FF5722", "#2196F3", "#FFEB3B",
   "#00E676", "#F06292",
 ];
 
-
-type DadoMes = {
-  despesa: number;
-  receita: number;
+type MonthData = {
+  expense: number;
+  income: number;
 };
 
-type CategoriaDonut = {
+type DonutCategory = {
   id: string;
-  nome: string;
-  valor: number;
-  cor: string;
+  name: string;
+  value: number;
+  color: string;
   pct: number;
 };
 
 type Tooltip = {
-  mes: string;
-  despesa: number;
-  receita: number;
+  month: string;
+  expense: number;
+  income: number;
   x: number;
 };
 
-
-function formatBRL(val: number) {
-  if (val >= 1000) return `R$ ${(val / 1000).toFixed(1)}k`;
-  return `R$ ${val.toLocaleString("pt-BR", { minimumFractionDigits: 0 })}`;
+function formatBRL(value: number) {
+  if (value >= 1000) return `R$ ${(value / 1000).toFixed(1)}k`;
+  return `R$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 0 })}`;
 }
 
-
 function DonutChart({
-  categorias,
-  totalGasto,
+  categories,
+  totalSpent,
 }: {
-  categorias: CategoriaDonut[];
-  totalGasto: number;
+  categories: DonutCategory[];
+  totalSpent: number;
 }) {
   const size = 190;
   const stroke = 30;
   const radius = (size - stroke) / 2;
-  const circunferencia = 2 * Math.PI * radius;
+  const circumference = 2 * Math.PI * radius;
   const center = size / 2;
 
-  if (categorias.length === 0) {
+  if (categories.length === 0) {
     return (
       <View style={donutStyles.wrapper}>
         <Svg width={size} height={size}>
@@ -78,32 +75,32 @@ function DonutChart({
     );
   }
 
-  let acumuladoGraus = -90;
+  let accumulatedDegrees = -90;
 
   return (
     <View style={donutStyles.wrapper}>
       <Svg width={size} height={size}>
         <Circle cx={center} cy={center} r={radius} stroke="#2A2A2A" strokeWidth={stroke} fill="none" />
-        {categorias.map((cat, i) => {
-          const dash = circunferencia * (cat.pct / 100);
-          const gap = circunferencia - dash;
-          const rotacao = acumuladoGraus;
-          acumuladoGraus += (cat.pct / 100) * 360;
+        {categories.map((cat, i) => {
+          const dash = circumference * (cat.pct / 100);
+          const gap = circumference - dash;
+          const rotation = accumulatedDegrees;
+          accumulatedDegrees += (cat.pct / 100) * 360;
           return (
             <Circle
               key={i}
               cx={center} cy={center} r={radius}
-              stroke={cat.cor}
+              stroke={cat.color}
               strokeWidth={stroke}
               fill="none"
               strokeDasharray={`${dash} ${gap}`}
-              transform={`rotate(${rotacao}, ${center}, ${center})`}
+              transform={`rotate(${rotation}, ${center}, ${center})`}
             />
           );
         })}
       </Svg>
       <View style={donutStyles.centerLabel}>
-        <Text style={donutStyles.centerVal}>{formatBRL(totalGasto)}</Text>
+        <Text style={donutStyles.centerVal}>{formatBRL(totalSpent)}</Text>
         <Text style={donutStyles.centerSub}>total gasto</Text>
       </View>
     </View>
@@ -117,18 +114,16 @@ const donutStyles = StyleSheet.create({
   centerSub: { color: "#666", fontSize: 10, marginTop: 2 },
 });
 
-
-
-function BarChart({ dadosMensais }: { dadosMensais: DadoMes[] }) {
+function BarChart({ monthlyData }: { monthlyData: MonthData[] }) {
   const [tooltip, setTooltip] = useState<Tooltip | null>(null);
   const [chartWidth, setChartWidth] = useState(0);
 
-  const maxValor = Math.max(
-    ...dadosMensais.flatMap((d) => [d.despesa, d.receita]),
+  const maxValue = Math.max(
+    ...monthlyData.flatMap((d) => [d.expense, d.income]),
     1,
   );
 
-  const barWidth = chartWidth > 0 ? chartWidth / MESES.length / 2 - 1.5 : 0;
+  const barWidth = chartWidth > 0 ? chartWidth / MONTHS.length / 2 - 1.5 : 0;
   const groupWidth = barWidth * 2 + 1.5;
   const gap = chartWidth > 0 ? (chartWidth - groupWidth * 12) / 11 : 0;
   const BALLOON_WIDTH = 130;
@@ -138,20 +133,19 @@ function BarChart({ dadosMensais }: { dadosMensais: DadoMes[] }) {
       onLayout={(e) => setChartWidth(e.nativeEvent.layout.width)}
       style={{ position: "relative" }}
     >
-      
       {tooltip && chartWidth > 0 && (() => {
         const rawLeft = tooltip.x - BALLOON_WIDTH / 2;
         const clampedLeft = Math.min(Math.max(rawLeft, 0), chartWidth - BALLOON_WIDTH);
         return (
           <View style={[barStyles.balloon, { left: clampedLeft, width: BALLOON_WIDTH }]}>
-            <Text style={barStyles.balloonMes}>{tooltip.mes}</Text>
+            <Text style={barStyles.balloonMonth}>{tooltip.month}</Text>
             <View style={barStyles.balloonRow}>
               <View style={[barStyles.balloonDot, { backgroundColor: "#5CD338" }]} />
-              <Text style={barStyles.balloonText}>Receita: {formatBRL(tooltip.receita)}</Text>
+              <Text style={barStyles.balloonText}>Receita: {formatBRL(tooltip.income)}</Text>
             </View>
             <View style={barStyles.balloonRow}>
               <View style={[barStyles.balloonDot, { backgroundColor: "#E53935" }]} />
-              <Text style={barStyles.balloonText}>Despesa: {formatBRL(tooltip.despesa)}</Text>
+              <Text style={barStyles.balloonText}>Despesa: {formatBRL(tooltip.expense)}</Text>
             </View>
             <View style={barStyles.balloonArrow} />
           </View>
@@ -161,10 +155,10 @@ function BarChart({ dadosMensais }: { dadosMensais: DadoMes[] }) {
       <View style={barStyles.container}>
         {chartWidth > 0 && (
           <View style={barStyles.barsRow}>
-            {dadosMensais.map((dado, i) => {
-              const hDespesa = (dado.despesa / maxValor) * 75;
-              const hReceita = (dado.receita / maxValor) * 75;
-              const isSelected = tooltip?.mes === MESES[i];
+            {monthlyData.map((data, i) => {
+              const expenseHeight = (data.expense / maxValue) * 75;
+              const incomeHeight = (data.income / maxValue) * 75;
+              const isSelected = tooltip?.month === MONTHS[i];
               const xCenter = i * (groupWidth + gap) + groupWidth / 2;
 
               return (
@@ -173,9 +167,9 @@ function BarChart({ dadosMensais }: { dadosMensais: DadoMes[] }) {
                   style={[barStyles.group, { width: groupWidth }]}
                   onLongPress={() =>
                     setTooltip({
-                      mes: MESES[i],
-                      despesa: dado.despesa,
-                      receita: dado.receita,
+                      month: MONTHS[i],
+                      expense: data.expense,
+                      income: data.income,
                       x: xCenter,
                     })
                   }
@@ -187,7 +181,7 @@ function BarChart({ dadosMensais }: { dadosMensais: DadoMes[] }) {
                     style={[
                       barStyles.bar,
                       {
-                        height: hDespesa || 2,
+                        height: expenseHeight || 2,
                         backgroundColor: isSelected ? "#FF6B6B" : "#E53935",
                         width: barWidth,
                       },
@@ -197,7 +191,7 @@ function BarChart({ dadosMensais }: { dadosMensais: DadoMes[] }) {
                     style={[
                       barStyles.bar,
                       {
-                        height: hReceita || 2,
+                        height: incomeHeight || 2,
                         backgroundColor: isSelected ? "#8EF55A" : "#5CD338",
                         width: barWidth,
                       },
@@ -210,12 +204,12 @@ function BarChart({ dadosMensais }: { dadosMensais: DadoMes[] }) {
         )}
 
         <View style={barStyles.labelsRow}>
-          {MESES.map((m) => (
+          {MONTHS.map((m) => (
             <Text
               key={m}
               style={[
-                barStyles.mesLabel,
-                tooltip?.mes === m && { color: "#FFF", fontWeight: "600" },
+                barStyles.monthLabel,
+                tooltip?.month === m && { color: "#FFF", fontWeight: "600" },
               ]}
             >
               {m}
@@ -242,7 +236,7 @@ const barStyles = StyleSheet.create({
     justifyContent: "space-between",
     marginTop: 8,
   },
-  mesLabel: { color: "#444", fontSize: 8, textAlign: "center", flex: 1 },
+  monthLabel: { color: "#444", fontSize: 8, textAlign: "center", flex: 1 },
 
   balloon: {
     position: "absolute",
@@ -260,7 +254,7 @@ const barStyles = StyleSheet.create({
     shadowOffset: { width: 0, height: 3 },
     elevation: 10,
   },
-  balloonMes: { color: "#FFF", fontSize: 11, fontWeight: "700", marginBottom: 5 },
+  balloonMonth: { color: "#FFF", fontSize: 11, fontWeight: "700", marginBottom: 5 },
   balloonRow: { flexDirection: "row", alignItems: "center", gap: 5, marginTop: 3 },
   balloonDot: { width: 7, height: 7, borderRadius: 4 },
   balloonText: { color: "#CCC", fontSize: 11 },
@@ -281,25 +275,22 @@ const barStyles = StyleSheet.create({
   },
 });
 
-
-
 export default function RelatoryScreen() {
   const { user } = useAuth();
 
-  const [dadosMensais, setDadosMensais] = useState<DadoMes[]>(
-    Array.from({ length: 12 }, () => ({ despesa: 0, receita: 0 })),
+  const [monthlyData, setMonthlyData] = useState<MonthData[]>(
+    Array.from({ length: 12 }, () => ({ expense: 0, income: 0 })),
   );
-  const [categorias, setCategorias] = useState<CategoriaDonut[]>([]);
+  const [categories, setCategories] = useState<DonutCategory[]>([]);
   const [loading, setLoading] = useState(true);
-  const [totalReceita, setTotalReceita] = useState(0);
-  const [totalDespesa, setTotalDespesa] = useState(0);
+  const [totalIncome, setTotalIncome] = useState(0);
+  const [totalExpense, setTotalExpense] = useState(0);
 
   const fetchData = useCallback(async () => {
     if (!user?.id) return;
     try {
       setLoading(true);
 
-      
       const [incomeRes, expenseRes] = await Promise.all([
         fetch(`http://localhost:8080/income/user/${user.id}`),
         fetch(`http://localhost:8080/expense/user/${user.id}`),
@@ -308,68 +299,62 @@ export default function RelatoryScreen() {
       const incomes: any[] = incomeRes.ok ? await incomeRes.json() : [];
       const expenses: any[] = expenseRes.ok ? await expenseRes.json() : [];
 
-      
-      const dados: DadoMes[] = Array.from({ length: 12 }, () => ({
-        despesa: 0,
-        receita: 0,
+      const data: MonthData[] = Array.from({ length: 12 }, () => ({
+        expense: 0,
+        income: 0,
       }));
 
       incomes.forEach((item) => {
-        const mes = new Date(item.date).getMonth();
-        dados[mes].receita += Number(item.amount) || 0;
+        const month = new Date(item.date).getMonth();
+        data[month].income += Number(item.amount) || 0;
       });
 
       expenses.forEach((item) => {
-        const mes = new Date(item.date).getMonth();
-        dados[mes].despesa += Number(item.amount) || 0;
+        const month = new Date(item.date).getMonth();
+        data[month].expense += Number(item.amount) || 0;
       });
 
-      setDadosMensais(dados);
+      setMonthlyData(data);
 
-      const tR = dados.reduce((s, d) => s + d.receita, 0);
-      const tD = dados.reduce((s, d) => s + d.despesa, 0);
-      setTotalReceita(tR);
-      setTotalDespesa(tD);
+      const tI = data.reduce((sum, d) => sum + d.income, 0);
+      const tE = data.reduce((sum, d) => sum + d.expense, 0);
+      setTotalIncome(tI);
+      setTotalExpense(tE);
 
-      
       const catRes = await fetch(`http://localhost:8080/category/user/${user.id}`);
       const catData: any[] = catRes.ok ? await catRes.json() : [];
 
-      
-      const catComValores = await Promise.all(
+      const categoriesWithValues = await Promise.all(
         catData.map(async (item: any, i: number) => {
-          let totalGasto = 0;
+          let totalSpent = 0;
           try {
-            const expCatRes = await fetch(
+            const expByCatRes = await fetch(
               `http://localhost:8080/expense/user/${user.id}/category/${item.categoryid}`,
             );
-            if (expCatRes.ok) {
-              const expCat: any[] = await expCatRes.json();
-              totalGasto = expCat.reduce((acc, e) => acc + Number(e.amount), 0);
+            if (expByCatRes.ok) {
+              const expByCat: any[] = await expByCatRes.json();
+              totalSpent = expByCat.reduce((acc, e) => acc + Number(e.amount), 0);
             }
-          } catch {
-            
-          }
+          } catch {}
           return {
             id: String(item.categoryid),
-            nome: item.categoryname,
-            valor: totalGasto,
-            cor: CORES_CATEGORIAS[i % CORES_CATEGORIAS.length],
+            name: item.categoryname,
+            value: totalSpent,
+            color: CATEGORY_COLORS[i % CATEGORY_COLORS.length],
             pct: 0,
           };
         }),
       );
 
-      
-      const totalCats = catComValores.reduce((s, c) => s + c.valor, 0) || 1;
-      const catsFinal: CategoriaDonut[] = catComValores
-        .filter((c) => c.valor > 0)
+      const totalCategories = categoriesWithValues.reduce((sum, c) => sum + c.value, 0) || 1;
+      const finalCategories: DonutCategory[] = categoriesWithValues
+        .filter((c) => c.value > 0)
         .map((c) => ({
           ...c,
-          pct: Math.round((c.valor / totalCats) * 100),
+          pct: Math.round((c.value / totalCategories) * 100),
         }));
 
-      setCategorias(catsFinal);
+      setCategories(finalCategories);
     } catch (e) {
       console.error("Erro ao buscar dados do relatório:", e);
     } finally {
@@ -383,38 +368,36 @@ export default function RelatoryScreen() {
     }, [fetchData]),
   );
 
-  const mesAtual = MESES[new Date().getMonth()];
-  const anoAtual = new Date().getFullYear();
+  const currentMonth = MONTHS[new Date().getMonth()];
+  const currentYear = new Date().getFullYear();
 
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
-      
         <View style={styles.header}>
           <Text style={styles.title}>Relatórios</Text>
           <TouchableOpacity style={styles.bell}>
             <MaterialIcons name="notifications-none" size={22} color="#FFF" />
           </TouchableOpacity>
         </View>
-        <Text style={styles.periodo}>{mesAtual} {anoAtual}</Text>
+        <Text style={styles.period}>{currentMonth} {currentYear}</Text>
 
         {loading ? (
           <ActivityIndicator color="#5CD338" size="large" style={{ marginTop: 80 }} />
         ) : (
           <>
-          
             <View style={styles.card}>
               <Text style={styles.cardTitle}>MENSAL POR CATEGORIA</Text>
               <View style={styles.donutRow}>
-                <DonutChart categorias={categorias} totalGasto={totalDespesa} />
+                <DonutChart categories={categories} totalSpent={totalExpense} />
               </View>
-              {categorias.length > 0 ? (
+              {categories.length > 0 ? (
                 <View style={styles.catGrid}>
-                  {categorias.map((cat, i) => (
+                  {categories.map((cat, i) => (
                     <View key={i} style={styles.catItem}>
-                      <View style={[styles.catDot, { backgroundColor: cat.cor }]} />
-                      <Text style={styles.catNome} numberOfLines={1}>{cat.nome}</Text>
+                      <View style={[styles.catDot, { backgroundColor: cat.color }]} />
+                      <Text style={styles.catName} numberOfLines={1}>{cat.name}</Text>
                       <Text style={styles.catPct}>{cat.pct}%</Text>
                     </View>
                   ))}
@@ -424,19 +407,17 @@ export default function RelatoryScreen() {
               )}
             </View>
 
-            
             <View style={styles.summaryRow}>
               <View style={styles.sumCard}>
                 <Text style={styles.sumLabel}>RECEITA</Text>
-                <Text style={[styles.sumVal, { color: "#5CD338" }]}>{formatBRL(totalReceita)}</Text>
+                <Text style={[styles.sumVal, { color: "#5CD338" }]}>{formatBRL(totalIncome)}</Text>
               </View>
               <View style={styles.sumCard}>
                 <Text style={styles.sumLabel}>DESPESA</Text>
-                <Text style={[styles.sumVal, { color: "#E53935" }]}>{formatBRL(totalDespesa)}</Text>
+                <Text style={[styles.sumVal, { color: "#E53935" }]}>{formatBRL(totalExpense)}</Text>
               </View>
             </View>
 
-          
             <View style={styles.card}>
               <Text style={styles.cardTitle}>RECEITAS VS. DESPESAS</Text>
               <View style={styles.barLegend}>
@@ -449,16 +430,15 @@ export default function RelatoryScreen() {
                   <Text style={styles.legendText}>Receita</Text>
                 </View>
               </View>
-              <BarChart dadosMensais={dadosMensais} />
+              <BarChart monthlyData={monthlyData} />
             </View>
 
-          
             <TouchableOpacity
-              style={styles.btnHistorico}
+              style={styles.btnHistory}
               onPress={() => router.push("/details")}
               activeOpacity={0.85}
             >
-              <Text style={styles.btnHistoricoText}>Ver Histórico</Text>
+              <Text style={styles.btnHistoryText}>Ver Histórico</Text>
               <MaterialIcons name="arrow-forward" size={18} color="#0A0A0A" />
             </TouchableOpacity>
           </>
@@ -475,7 +455,7 @@ const styles = StyleSheet.create({
   header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 4 },
   title: { color: "#FFF", fontSize: 22, fontWeight: "700" },
   bell: { backgroundColor: "#1C1C1C", padding: 10, borderRadius: 50 },
-  periodo: { color: "#555", fontSize: 12, marginBottom: 20 },
+  period: { color: "#555", fontSize: 12, marginBottom: 20 },
 
   card: { backgroundColor: "#1A1A1A", borderRadius: 20, padding: 16, marginBottom: 14 },
   cardTitle: { color: "#555", fontSize: 10, letterSpacing: 1, marginBottom: 14 },
@@ -485,7 +465,7 @@ const styles = StyleSheet.create({
   catGrid: { flexDirection: "row", flexWrap: "wrap", rowGap: 8, columnGap: 8 },
   catItem: { flexDirection: "row", alignItems: "center", gap: 6, width: "47%" },
   catDot: { width: 8, height: 8, borderRadius: 4, flexShrink: 0 },
-  catNome: { color: "#AAA", fontSize: 11, flex: 1 },
+  catName: { color: "#AAA", fontSize: 11, flex: 1 },
   catPct: { color: "#FFF", fontSize: 11, fontWeight: "600" },
   emptyText: { color: "#555", fontSize: 12, textAlign: "center", paddingVertical: 8 },
 
@@ -499,7 +479,7 @@ const styles = StyleSheet.create({
   legendDot: { width: 8, height: 8, borderRadius: 2 },
   legendText: { color: "#AAA", fontSize: 11 },
 
-  btnHistorico: {
+  btnHistory: {
     backgroundColor: "#5CD338",
     borderRadius: 14,
     paddingVertical: 15,
@@ -510,5 +490,5 @@ const styles = StyleSheet.create({
     gap: 8,
     marginTop: 4,
   },
-  btnHistoricoText: { color: "#0A0A0A", fontSize: 15, fontWeight: "700" },
+  btnHistoryText: { color: "#0A0A0A", fontSize: 15, fontWeight: "700" },
 });
