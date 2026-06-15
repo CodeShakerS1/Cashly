@@ -115,7 +115,10 @@ export default function SettingsScreen() {
     if (!user) return;
 
     if (password.trim() !== "" && password.length < 6) {
-      Alert.alert("Senha inválida", "A senha deve ter pelo menos 6 caracteres.");
+      Alert.alert(
+        "Senha inválida",
+        "A senha deve ter pelo menos 6 caracteres.",
+      );
       return;
     }
 
@@ -245,7 +248,7 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0d0d0d",
+    backgroundColor: "#000",
     padding: 20,
     justifyContent: "center",
   },
@@ -257,7 +260,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   card: {
-    backgroundColor: "#1a1a1a",
+    backgroundColor: "#111",
     borderRadius: 20,
     padding: 20,
   },
