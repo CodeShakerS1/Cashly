@@ -551,7 +551,7 @@ export default function RelatoryScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#0A0A0A" },
+  container: { flex: 1, backgroundColor: "#000" },
   scroll: { paddingTop: 56, paddingBottom: 40, paddingHorizontal: 16 },
 
   header: {
@@ -565,7 +565,7 @@ const styles = StyleSheet.create({
   period: { color: "#555", fontSize: 12, marginBottom: 20 },
 
   card: {
-    backgroundColor: "#1A1A1A",
+    backgroundColor: "#111",
     borderRadius: 20,
     padding: 16,
     marginBottom: 14,
@@ -594,7 +594,7 @@ const styles = StyleSheet.create({
   summaryRow: { flexDirection: "row", gap: 10, marginBottom: 14 },
   sumCard: {
     flex: 1,
-    backgroundColor: "#1A1A1A",
+    backgroundColor: "#111",
     borderRadius: 16,
     padding: 14,
   },
