@@ -3,6 +3,8 @@ import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,6 +13,7 @@ import {
 } from "react-native";
 import Svg, { Circle } from "react-native-svg";
 import { useAuth } from "../../contexts/auth";
+import { exportExpenses, importExpenses } from "../../utils/spreadsheet";
 
 const MONTHS = [
   "Jan",
@@ -445,6 +448,33 @@ export default function RelatoryScreen() {
     }, [fetchData]),
   );
 
+  function aviso(titulo: string, mensagem: string) {
+    if (Platform.OS === "web") window.alert(`${titulo}\n\n${mensagem}`);
+    else Alert.alert(titulo, mensagem);
+  }
+
+  async function handleImport() {
+    try {
+      const result = await importExpenses(user!.id);
+      if (!result) return; // cancelou
+      const erros = result.errors.length
+        ? `\n\nProblemas:\n${result.errors.slice(0, 5).join("\n")}`
+        : "";
+      aviso("Importação", `${result.imported} despesas importadas.${erros}`);
+      fetchData(); // atualiza os gráficos
+    } catch (e: any) {
+      aviso("Erro", e.message ?? "Não foi possível importar.");
+    }
+  }
+
+  async function handleExport() {
+    try {
+      await exportExpenses(user!.id, "xlsx");
+    } catch (e: any) {
+      aviso("Erro", e.message ?? "Não foi possível exportar.");
+    }
+  }
+
   const currentMonth = MONTHS[new Date().getMonth()];
   const currentYear = new Date().getFullYear();
 
@@ -543,6 +573,25 @@ export default function RelatoryScreen() {
               <Text style={styles.btnHistoryText}>Ver Histórico</Text>
               <MaterialIcons name="arrow-forward" size={18} color="#0A0A0A" />
             </TouchableOpacity>
+
+            <View style={styles.sheetRow}>
+              <TouchableOpacity
+                style={styles.btnSheet}
+                onPress={handleImport}
+                activeOpacity={0.85}
+              >
+                <MaterialIcons name="file-upload" size={18} color="#5CD338" />
+                <Text style={styles.btnSheetText}>Importar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.btnSheet}
+                onPress={handleExport}
+                activeOpacity={0.85}
+              >
+                <MaterialIcons name="file-download" size={18} color="#5CD338" />
+                <Text style={styles.btnSheetText}>Exportar</Text>
+              </TouchableOpacity>
+            </View>
           </>
         )}
       </ScrollView>
@@ -623,4 +672,18 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   btnHistoryText: { color: "#0A0A0A", fontSize: 15, fontWeight: "700" },
+
+  sheetRow: { flexDirection: "row", gap: 10, marginTop: 10 },
+  btnSheet: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#5CD338",
+    borderRadius: 14,
+    paddingVertical: 14,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+  },
+  btnSheetText: { color: "#5CD338", fontSize: 14, fontWeight: "700" },
 });
