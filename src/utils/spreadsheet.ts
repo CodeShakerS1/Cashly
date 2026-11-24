@@ -4,8 +4,11 @@ import * as Sharing from "expo-sharing";
 import { Linking, Platform } from "react-native";
 
 const API = "http://localhost:8080"; 
-
-export type ImportResult = { imported: number; errors: string[] };
+export type ImportResult = {
+  imported: number;
+  errors: string[];
+  createdCategories: string[];
+};
 
 
 export async function importExpenses(userId: string | number): Promise<ImportResult | null> {
@@ -44,7 +47,6 @@ export async function exportExpenses(userId: string | number, format: "xlsx" | "
 
   if (Platform.OS === "web") {
     await Linking.openURL(url); 
-    return;
   }
 
   const { uri, status } = await FileSystem.downloadAsync(

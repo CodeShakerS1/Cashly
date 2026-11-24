@@ -448,6 +448,7 @@ export default function RelatoryScreen() {
     }, [fetchData]),
   );
 
+ 
   function aviso(titulo: string, mensagem: string) {
     if (Platform.OS === "web") window.alert(`${titulo}\n\n${mensagem}`);
     else Alert.alert(titulo, mensagem);
@@ -456,12 +457,18 @@ export default function RelatoryScreen() {
   async function handleImport() {
     try {
       const result = await importExpenses(user!.id);
-      if (!result) return; // cancelou
+      if (!result) return; 
       const erros = result.errors.length
         ? `\n\nProblemas:\n${result.errors.slice(0, 5).join("\n")}`
         : "";
-      aviso("Importação", `${result.imported} despesas importadas.${erros}`);
-      fetchData(); // atualiza os gráficos
+      const novas = result.createdCategories.length
+        ? `\n\nCategorias criadas: ${result.createdCategories.join(", ")}`
+        : "";
+      aviso(
+        "Importação",
+        `${result.imported} despesas importadas.${novas}${erros}`,
+      );
+      fetchData(); 
     } catch (e: any) {
       aviso("Erro", e.message ?? "Não foi possível importar.");
     }
