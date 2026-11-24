@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   FlatList,
   Image,
@@ -15,22 +15,182 @@ import {
   View,
 } from "react-native";
 
-import { LoadingCoin } from "@/src/components/login/login";
 import { themas } from "@/src/theme/themes";
 
-const API_URL = "http://localhost:8080";
-const FALLBACK_CATEGORIES = [
-  "Moda",
-  "Eletrônicos",
-  "Casa",
-  "Beleza",
-  "Viagem",
-  "Alimentação",
-];
 const STORE_COLORS = ["#5BBF26", "#00BFFF", "#FF8C00", "#A78BFA", "#FF4D4D", "#FFD600"];
+
+function daysFromNow(days: number): string {
+  const date = new Date();
+  date.setDate(date.getDate() + days);
+  return date.toISOString();
+}
+
+const DEMO_COUPONS: Coupon[] = [
+  {
+    id: 1,
+    externalId: "demo-1",
+    store: "Magalu",
+    title: "R$ 50 OFF em compras acima de R$ 299",
+    description: "Válido para produtos selecionados no site. Não cumulativo com outras promoções.",
+    code: "CASHLY50",
+    discount: "R$ 50 OFF",
+    category: "Eletrônicos",
+    imageUrl: null,
+    affiliateUrl: "https://www.magalu.com/",
+    expiresAt: daysFromNow(5),
+    uses: 1240,
+    featured: true,
+    source: "demo",
+  },
+  {
+    id: 2,
+    externalId: "demo-2",
+    store: "Amazon",
+    title: "Até 40% OFF em produtos selecionados",
+    description: "Desconto aplicado no checkout em itens participantes.",
+    code: "CASHLY40",
+    discount: "40% OFF",
+    category: "Eletrônicos",
+    imageUrl: null,
+    affiliateUrl: "https://www.amazon.com.br/",
+    expiresAt: daysFromNow(3),
+    uses: 980,
+    featured: true,
+    source: "demo",
+  },
+  {
+    id: 3,
+    externalId: "demo-3",
+    store: "Nike",
+    title: "30% OFF em tênis selecionados",
+    description: "Cupom válido para a linha de corrida.",
+    code: "CORRIDA30",
+    discount: "30% OFF",
+    category: "Moda",
+    imageUrl: null,
+    affiliateUrl: "https://www.nike.com.br/",
+    expiresAt: daysFromNow(2),
+    uses: 2110,
+    featured: true,
+    source: "demo",
+  },
+  {
+    id: 4,
+    externalId: "demo-4",
+    store: "Renner",
+    title: "20% OFF na primeira compra do app",
+    description: "Para novos clientes, válido em peças selecionadas.",
+    code: "PRIMEIRA20",
+    discount: "20% OFF",
+    category: "Moda",
+    imageUrl: null,
+    affiliateUrl: "https://www.renner.com.br/",
+    expiresAt: daysFromNow(7),
+    uses: 756,
+    featured: false,
+    source: "demo",
+  },
+  {
+    id: 5,
+    externalId: "demo-5",
+    store: "iFood",
+    title: "R$ 25 OFF no seu próximo pedido",
+    description: "Válido para pedidos acima de R$ 60 em restaurantes parceiros.",
+    code: "FOOD25",
+    discount: "R$ 25 OFF",
+    category: "Alimentação",
+    imageUrl: null,
+    affiliateUrl: "https://www.ifood.com.br/",
+    expiresAt: daysFromNow(4),
+    uses: 3420,
+    featured: true,
+    source: "demo",
+  },
+  {
+    id: 6,
+    externalId: "demo-6",
+    store: "Casas Bahia",
+    title: "R$ 100 OFF em eletrodomésticos",
+    description: "Oferta válida em geladeiras, fogões e máquinas de lavar.",
+    code: "CASA100",
+    discount: "R$ 100 OFF",
+    category: "Casa",
+    imageUrl: null,
+    affiliateUrl: "https://www.casasbahia.com.br/",
+    expiresAt: daysFromNow(6),
+    uses: 612,
+    featured: false,
+    source: "demo",
+  },
+  {
+    id: 7,
+    externalId: "demo-7",
+    store: "Sephora",
+    title: "15% OFF em perfumaria",
+    description: "Desconto em marcas selecionadas, enquanto durar o estoque.",
+    code: "BELEZA15",
+    discount: "15% OFF",
+    category: "Beleza",
+    imageUrl: null,
+    affiliateUrl: "https://www.sephora.com.br/",
+    expiresAt: daysFromNow(8),
+    uses: 845,
+    featured: false,
+    source: "demo",
+  },
+  {
+    id: 8,
+    externalId: "demo-8",
+    store: "Booking.com",
+    title: "10% OFF em hotéis selecionados",
+    description: "Reserve sua próxima viagem com desconto em acomodações participantes.",
+    code: "VIAGEM10",
+    discount: "10% OFF",
+    category: "Viagem",
+    imageUrl: null,
+    affiliateUrl: "https://www.booking.com/",
+    expiresAt: daysFromNow(10),
+    uses: 1320,
+    featured: false,
+    source: "demo",
+  },
+  {
+    id: 9,
+    externalId: "demo-9",
+    store: "Samsung",
+    title: "R$ 200 OFF em smartphones",
+    description: "Válido nos modelos Galaxy selecionados, por tempo limitado.",
+    code: "GALAXY200",
+    discount: "R$ 200 OFF",
+    category: "Eletrônicos",
+    imageUrl: null,
+    affiliateUrl: "https://www.samsung.com/br/",
+    expiresAt: daysFromNow(1),
+    uses: 1870,
+    featured: false,
+    source: "demo",
+  },
+  {
+    id: 10,
+    externalId: "demo-10",
+    store: "Natural",
+    title: "25% OFF em kits de cuidados",
+    description: "Kits selecionados com desconto exclusivo para o app.",
+    code: "NATURAL25",
+    discount: "25% OFF",
+    category: "Beleza",
+    imageUrl: null,
+    affiliateUrl: "https://www.natural.com.br/",
+    expiresAt: daysFromNow(9),
+    uses: 490,
+    featured: false,
+    source: "demo",
+  },
+];
 
 type Coupon = {
   id: number;
+  externalId?: string;
   store: string;
   title: string;
   description: string;
@@ -210,15 +370,37 @@ const CouponCard = React.memo(function CouponCard({
 });
 
 export default function CouponsScreen() {
-  const [coupons, setCoupons] = useState<Coupon[]>([]);
-  const [categories, setCategories] = useState<string[]>(["Todos"]);
+  const [coupons, setCoupons] = useState<Coupon[]>(DEMO_COUPONS);
   const [category, setCategory] = useState("Todos");
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<number | null>(null);
+
+  const categories = useMemo(
+    () => [
+      "Todos",
+      ...Array.from(
+        new Set(
+          DEMO_COUPONS.map((coupon) => coupon.category).filter(
+            (value): value is string => Boolean(value),
+          ),
+        ),
+      ).sort((a, b) => a.localeCompare(b, "pt-BR")),
+    ],
+    [],
+  );
+
+  const filteredCoupons = useMemo(() => {
+    const query = debouncedSearch.trim().toLowerCase();
+    return coupons.filter((coupon) => {
+      if (category !== "Todos" && coupon.category !== category) return false;
+      if (!query) return true;
+      return [coupon.store, coupon.title, coupon.description, coupon.code, coupon.category]
+        .filter(Boolean)
+        .some((value) => String(value).toLowerCase().includes(query));
+    });
+  }, [coupons, category, debouncedSearch]);
 
   const { width } = useWindowDimensions();
   const compact = width <= 420;
@@ -229,57 +411,17 @@ export default function CouponsScreen() {
     return () => clearTimeout(timer);
   }, [search]);
 
-  useEffect(() => {
-    fetch(`${API_URL}/coupons/categories`)
-      .then((res) => (res.ok ? res.json() : Promise.reject()))
-      .then((data: string[]) => setCategories(["Todos", ...data]))
-      .catch(() => setCategories(["Todos", ...FALLBACK_CATEGORIES]));
-  }, []);
-
-  const fetchCoupons = useCallback(
-    async (refresh = false) => {
-      try {
-        setError(null);
-        const params = new URLSearchParams();
-        if (category !== "Todos") params.set("category", category);
-        if (debouncedSearch.trim()) params.set("q", debouncedSearch.trim());
-        if (refresh) params.set("refresh", "true");
-
-        const res = await fetch(`${API_URL}/coupons?${params.toString()}`);
-        if (!res.ok) throw new Error(`Erro ${res.status}`);
-
-        const data: Coupon[] = await res.json();
-        setCoupons(data);
-      } catch (e: any) {
-        setError(e?.message ?? "Falha ao carregar cupons");
-      } finally {
-        setLoading(false);
-        setRefreshing(false);
-      }
-    },
-    [category, debouncedSearch],
-  );
-
-  useEffect(() => {
-    fetchCoupons();
-  }, [fetchCoupons]);
-
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    fetchCoupons(true);
-  }, [fetchCoupons]);
+    setTimeout(() => setRefreshing(false), 500);
+  }, []);
 
-  const registerUse = useCallback(async (id: number) => {
-    try {
-      const res = await fetch(`${API_URL}/coupons/${id}/use`, { method: "POST" });
-      if (!res.ok) return;
-      const data: { uses: number } = await res.json();
-      setCoupons((prev) =>
-        prev.map((c) => (c.id === id ? { ...c, uses: data.uses } : c)),
-      );
-    } catch {
-      // O contador é apenas informativo; não interfere no uso do cupom.
-    }
+  const registerUse = useCallback((id: number) => {
+    setCoupons((prev) =>
+      prev.map((coupon) =>
+        coupon.id === id ? { ...coupon, uses: coupon.uses + 1 } : coupon,
+      ),
+    );
   }, []);
 
   const handleCopy = useCallback(
@@ -309,10 +451,6 @@ export default function CouponsScreen() {
     },
     [registerUse],
   );
-
-  if (loading) {
-    return <LoadingCoin />;
-  }
 
   return (
     <View style={styles.screen}>
@@ -393,12 +531,12 @@ export default function CouponsScreen() {
           Cupons em alta
         </Text>
         <Text style={[styles.highlightCount, compact && styles.highlightCountCompact]}>
-          {coupons.length} ofertas
+          {filteredCoupons.length} ofertas
         </Text>
       </View>
 
       <FlatList
-        data={coupons}
+        data={filteredCoupons}
         keyExtractor={(item) => String(item.id)}
         renderItem={({ item }) => (
           <CouponCard
@@ -412,7 +550,7 @@ export default function CouponsScreen() {
         contentContainerStyle={[
           styles.listContent,
           compact && styles.listContentCompact,
-          coupons.length === 0 && styles.listEmpty,
+          filteredCoupons.length === 0 && styles.listEmpty,
           { paddingHorizontal: pagePadding },
         ]}
         showsVerticalScrollIndicator={false}
@@ -426,24 +564,13 @@ export default function CouponsScreen() {
           />
         }
         ListEmptyComponent={
-          error ? (
-            <View style={styles.emptyWrap}>
-              <Ionicons name="cloud-offline-outline" size={44} color="#FF4D4D" />
-              <Text style={styles.emptyTitle}>Ops!</Text>
-              <Text style={styles.emptyText}>{error}</Text>
-              <Pressable style={styles.retryBtn} onPress={() => fetchCoupons(true)}>
-                <Text style={styles.retryText}>Tentar novamente</Text>
-              </Pressable>
-            </View>
-          ) : (
-            <View style={styles.emptyWrap}>
-              <Ionicons name="pricetag-outline" size={44} color="#3A3A3A" />
-              <Text style={styles.emptyTitle}>Nenhum cupom encontrado</Text>
-              <Text style={styles.emptyText}>
-                Tente outra categoria ou termo de busca.
-              </Text>
-            </View>
-          )
+          <View style={styles.emptyWrap}>
+            <Ionicons name="pricetag-outline" size={44} color="#3A3A3A" />
+            <Text style={styles.emptyTitle}>Nenhum cupom encontrado</Text>
+            <Text style={styles.emptyText}>
+              Tente outra categoria ou termo de busca.
+            </Text>
+          </View>
         }
         ListFooterComponent={<View style={{ height: 24 }} />}
       />
@@ -755,20 +882,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textAlign: "center",
     lineHeight: 18,
-  },
-  retryBtn: {
-    marginTop: 12,
-    paddingVertical: 9,
-    paddingHorizontal: 20,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: "#FF4D4D",
-    backgroundColor: "#FF4D4D18",
-  },
-  retryText: {
-    color: "#FF4D4D",
-    fontSize: 12,
-    fontWeight: "700",
   },
 
   // Ajustes para telas estreitas (<= 420px)
