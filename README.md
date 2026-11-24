@@ -38,6 +38,9 @@ Visualize gráficos e estatísticas semanais para identificar padrões de consum
 ### 💡 Insights Financeiros
 Receba dicas e alertas baseados nos seus hábitos financeiros.
 
+### 🎟️ Feed de Cupons
+Descubra ofertas em uma aba dedicada: filtre por categoria, busque por loja, copie o código do cupom e abra o link da loja. O feed funciona **sem backend**, usando cupons de exemplo locais; não é necessário configurar API de afiliados para testar.
+
 ### 🔒 Dados Seguros
 Suas informações financeiras ficam protegidas e acessíveis apenas para você.
 

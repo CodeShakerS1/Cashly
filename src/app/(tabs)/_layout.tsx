@@ -26,6 +26,14 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
+          name="coupons"
+          options={{
+            tabBarIcon: ({ color }) => (
+              <MaterialIcons name="local-offer" size={24} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
           name="notification"
           options={{
             href: null,
